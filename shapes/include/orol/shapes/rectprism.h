@@ -6,13 +6,9 @@
 #include <math.h>
 #include <cassert>
 #include <QMat/QMatAll>
+#include <stdint.h>
 #include "axis.h"
 #include "codes.h"
-
-#include <CGAL/Nef_polyhedron_3.h>
-#include <CGAL/Homogeneous.h>
-#include <CGAL/squared_distance_3.h> 
-
 
 
 //typedef CGAL::Homogeneous<double> Kernel;

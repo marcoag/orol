@@ -24,7 +24,7 @@ SET(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING
     "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel Maintainer."
     FORCE)
 
-include(${PCL_SOURCE_DIR}/cmake/pcl_targets.cmake)
+include(${OROL_SOURCE_DIR}/cmake/orol_targets.cmake)
 
 # ---[ Unix/Darwin/Windows specific flags
 if(CMAKE_COMPILER_IS_GNUCXX)
@@ -49,14 +49,14 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 endif()
 
 # ---[ Project folders
-option(USE_PROJECT_FOLDERS "Use folders to organize PCL projects in an IDE." OFF)
+option(USE_PROJECT_FOLDERS "Use folders to organize OROL projects in an IDE." OFF)
 mark_as_advanced(USE_PROJECT_FOLDERS)
 if(USE_PROJECT_FOLDERS)
   set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 endif(USE_PROJECT_FOLDERS)
 
-include(${PCL_SOURCE_DIR}/cmake/orol_utils.cmake)
-set(PCL_VERSION 0.0.1 CACHE STRING "OROL version")
+include(${OROL_SOURCE_DIR}/cmake/orol_utils.cmake)
+set(OROL_VERSION 0.0.1 CACHE STRING "OROL version")
 DISSECT_VERSION()
 GET_OS_INFO()
 SET_INSTALL_DIRS()
@@ -71,10 +71,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${OROL_OUTPUT_BIN_DIR}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${OROL_OUTPUT_LIB_DIR}")
 
 # Add an "uninstall" target
-# configure_file("${PCL_SOURCE_DIR}/cmake/uninstall_target.cmake.in"
-#                "${PCL_BINARY_DIR}/uninstall_target.cmake" IMMEDIATE @ONLY)
+# configure_file("${OROL_SOURCE_DIR}/cmake/uninstall_target.cmake.in"
+#                "${OROL_BINARY_DIR}/uninstall_target.cmake" IMMEDIATE @ONLY)
 # add_custom_target(uninstall "${CMAKE_COMMAND}" -P
-#                   "${PCL_BINARY_DIR}/uninstall_target.cmake")
+#                   "${OROL_BINARY_DIR}/uninstall_target.cmake")
 
 ### ---[ Find universal dependencies
 # the gcc-4.2.1 coming with MacOS X is not compatible with the OpenMP pragmas we use, so disabling OpenMP for it
@@ -89,8 +89,11 @@ else(OPENMP_FOUND)
   message (STATUS "Not found OpenMP")
 endif()
 
-# PCL (required)
+# OROL (required)
 find_package(PCL 1.6 REQUIRED COMPONENTS common )
+
+# OROL
+include(${OROL_SOURCE_DIR}/cmake/modules/FindQMat.cmake)
 
 # Find QT4
 find_package(Qt4)
@@ -106,11 +109,11 @@ if(DOXYGEN_FOUND)
 endif(DOXYGEN_FOUND)
 
 ### ---[ Create the config.h file
-set(orol_config_h_in "${CMAKE_CURRENT_SOURCE_DIR}/orol_config.h.in")
-set(orol_config_h "${CMAKE_CURRENT_BINARY_DIR}/include/orol/orol_config.h")
-configure_file(${orol_config_h_in} ${orol_config_h})
-OROL_ADD_INCLUDES(${orol_config_h})
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
+# set(orol_config_h_in "${CMAKE_CURRENT_SOURCE_DIR}/orol_config.h.in")
+# set(orol_config_h "${CMAKE_CURRENT_BINARY_DIR}/include/orol/orol_config.h")
+# configure_file(${orol_config_h_in} ${orol_config_h})
+# OROL_ADD_INCLUDES(${orol_config_h})
+# include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
 
 ### ---[ Set up for tests
 enable_testing()
@@ -119,33 +122,12 @@ enable_testing()
 include(${OROL_SOURCE_DIR}/cmake/orol_targets.cmake)
 
 collect_subproject_directory_names(${OROL_SOURCE_DIR} "CMakeLists.txt" OROL_MODULES_NAMES OROL_MODULES_DIRS doc)
-set(PCL_MODULES_NAMES_UNSORTED ${PCL_MODULES_NAMES})
-topological_sort(PCL_MODULES_NAMES PCL_ _DEPENDS)
-sort_relative(PCL_MODULES_NAMES_UNSORTED PCL_MODULES_NAMES PCL_MODULES_DIRS)
-foreach(subdir ${PCL_MODULES_DIRS})
-  add_subdirectory(${PCL_SOURCE_DIR}/${subdir})  
+set(OROL_MODULES_NAMES_UNSORTED ${OROL_MODULES_NAMES})
+topological_sort(OROL_MODULES_NAMES OROL_ _DEPENDS)
+sort_relative(OROL_MODULES_NAMES_UNSORTED OROL_MODULES_NAMES OROL_MODULES_DIRS)
+foreach(subdir ${OROL_MODULES_DIRS})
+  add_subdirectory(${OROL_SOURCE_DIR}/${subdir})  
 endforeach(subdir)
 
 ### ---[ Documentation
-add_subdirectory(doc)
-
-### ---[ Configure PCLConfig.cmake
-include(${PCL_SOURCE_DIR}/cmake/pcl_pclconfig.cmake)
-
-### ---[ Package creation
-include(${PCL_SOURCE_DIR}/cmake/pcl_all_in_one_installer.cmake)
-include(${PCL_SOURCE_DIR}/cmake/pcl_cpack.cmake)
-
-if(CPACK_GENERATOR)
-  message(STATUS "Found CPack generators: ${CPACK_GENERATOR}")
-  PCL_MAKE_CPACK_INPUT()
-  set(CPACK_PROJECT_CONFIG_FILE "${PCL_CPACK_CFG_FILE}")
-  include(CPack)
-endif(CPACK_GENERATOR)
-### ---[ Make a pretty picture of the dependency graph
-include(${PCL_SOURCE_DIR}/cmake/dep_graph.cmake)
-MAKE_DEP_GRAPH()
-
-### ---[ Finish up
-PCL_WRITE_STATUS_REPORT()
-PCL_RESET_MAPS()
+#add_subdirectory(doc)
