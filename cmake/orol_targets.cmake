@@ -152,9 +152,7 @@ macro(OROL_SUBSYS_DEPEND _var _name)
     if(SUBSYS_OPT_DEPS)
         SET_IN_GLOBAL_MAP(OROL_SUBSYS_OPT_DEPS ${_name} "${SUBSYS_OPT_DEPS}")
     endif(SUBSYS_OPT_DEPS)
-    set(${test}  ("${subsys_status}" STREQUAL ""))
-          message(${test} " test")
-    
+
     foreach(_dep ${SUBSYS_DEPS})
             OROL_GET_SUBSYS_INCLUDE_DIR(_include_dir ${_dep})
             include_directories(${PROJECT_SOURCE_DIR}/${_include_dir}/include)
