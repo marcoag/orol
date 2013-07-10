@@ -90,9 +90,10 @@ else(OPENMP_FOUND)
 endif()
 
 # OROL (required)
-find_package(PCL 1.6 REQUIRED COMPONENTS common )
+find_package(PCL 1.7)
+include_directories(${PCL_INCLUDE_DIRS})
 
-# OROL
+# OROL QMat
 include(${OROL_SOURCE_DIR}/cmake/modules/FindQMat.cmake)
 
 # Find QT4

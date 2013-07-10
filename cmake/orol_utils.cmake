@@ -245,3 +245,21 @@ macro(set_in_list _list _position _value)
   math(EXPR next "${${_position}} + 1")
   list(REMOVE_AT ${_list} ${next})
 endmacro(set_in_list)
+
+###############################################################################
+# Set a value in a global, cached map.
+# _map The map name.
+# _key The key name.
+# _value The value.
+macro(SET_IN_GLOBAL_MAP _map _key _value)
+    set("${_map}_${_key}" "${_value}" CACHE INTERNAL "Map value" FORCE)
+endmacro(SET_IN_GLOBAL_MAP)
+
+###############################################################################
+# Get a value from a map.
+# _dest The name of the variable to store the value in.
+# _map The map name.
+# _key The key name.
+macro(GET_IN_MAP _dest _map _key)
+    set(${_dest} ${${_map}_${_key}})
+endmacro(GET_IN_MAP)
