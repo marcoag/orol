@@ -8,10 +8,12 @@ typedef pcl::PointXYZRGBA PointT;
 class RectPrismFitting
 {
   pcl::PointCloud<PointT>::Ptr cloud2fit;
+  RectPrism rectangularPrism;
 
 public:
   
   RectPrismFitting(): cloud2fit(new pcl::PointCloud<PointT>())
+  , rectangularPrism ()
   {
     
   }
@@ -110,4 +112,5 @@ int main (int argc, char argv[])
 {
   RectPrismFitting R;
   R.useSinteticCube(100,100,400,50);
+  
 }

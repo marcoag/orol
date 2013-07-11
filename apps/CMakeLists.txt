@@ -9,6 +9,6 @@ include_directories (${CMAKE_CURRENT_BINARY_DIR})
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 OROL_ADD_EXECUTABLE(orol_rectangular_prism_fitting ${SUBSYS_NAME} src/rectangular_prism_fitting.cpp)
-target_link_libraries(orol_rectangular_prism_fitting orol_shapes)
+target_link_libraries(orol_rectangular_prism_fitting orol_shapes )
 
 
