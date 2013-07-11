@@ -73,7 +73,7 @@ double RectPrism::getInternalDistance(const QVec point,const QVec normal)
     case RBF: return fabs(distance_p2p(point(0),point(1),point(2),(Wx/2),-(Wy/2),-(Wz/2)));
     case RBB: return fabs(distance_p2p(point(0),point(1),point(2),(Wx/2),-(Wy/2),(Wz/2)));
     
-    default: cout<<"Esto no rula locooo!!"<<endl;
+    default: cout<<"Error trying to obtain the distance of an itnernal point"<<endl;
   }
    
    //using normals
@@ -152,12 +152,8 @@ double RectPrism::distance(const QVec &point,const QVec normal)
 {
   QVec point2 = placePoint(point);
   QVec normal2 = rotateNormal(normal);
-  //point.print("point");
-  //point2.print("point2");
   
   uint8_t code = collisionVector(point2);
-  
-  //printCode(code);
   
   switch(code)
   {
