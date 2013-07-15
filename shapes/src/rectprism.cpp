@@ -1,4 +1,3 @@
-//#include "rectprism.h"
 #include <orol/shapes/rectprism.h>
 
 RectPrism::RectPrism()

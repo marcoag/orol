@@ -44,7 +44,7 @@ public:
   double distance(const QVec &point, const QVec normal);
   
 private:
-  void naiveIncRotation(int index)
+  void naiveIncRotation(int index);
   
   QVec center;
   QVec rotation;
