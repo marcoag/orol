@@ -1,4 +1,5 @@
 #include <orol/shapes/rectprism.h>
+#include <orol/fitting/naive_rect_prism_fitting.h>
 
 #include <pcl/point_types.h>
 #include <pcl/common/transforms.h>
@@ -98,7 +99,7 @@ void moveACloud(pcl::PointCloud<PointT>::Ptr cloud2move, float X, float Y, float
 int main (int argc, char argv[])
 {
   pcl::PointCloud<PointT>::Ptr cloud2fit;
-  RectPrism rectangular_prism;
+  RectPrism *rectangular_prism = new RectPrism(); 
   
   Eigen::Vector4f centroid;
   Eigen::Matrix3f covariance_matrix;
@@ -108,9 +109,6 @@ int main (int argc, char argv[])
   
   //Create sintetic cube
   cloud2fit = sinteticCubeCloud (100,100,400,50);
-  
-  //calculate centroid of the cube
-  
   
   //calculate centroid, eigen values and eigen vectors
   pcl::computeMeanAndCovarianceMatrix(*cloud2fit, covariance_matrix, centroid);
@@ -134,10 +132,16 @@ int main (int argc, char argv[])
   float ratio=max_eigenvalue/max_distance;
   
   //set initial values for the rectangular prism
-  rectangular_prism.setCenter(QVec::vec3(centroid(0), centroid(1), centroid(2)));
-  rectangular_prism.setWidth(QVec::vec3((eigen_values(0)/ratio),(eigen_values(0)/ratio),(eigen_values(0)/ratio)));
+  rectangular_prism->setCenter(QVec::vec3(centroid(0), centroid(1), centroid(2)));
+  rectangular_prism->setWidth(QVec::vec3((eigen_values(0)/ratio),(eigen_values(0)/ratio),(eigen_values(0)/ratio)));
   ///TODO make rotation dependant on the eigen_vectors
-  rectangular_prism.setRotation(QVec::vec3(0,0,0));
+  rectangular_prism->setRotation(QVec::vec3(0,0,0));
+  
+  naiveRectangularPrismFitting fitter(rectangular_prism, cloud2fit);
+  
+  fitter.adapt();
+  
+  rectangular_prism=fitter.getRectangularPrism();
   
   
 }
