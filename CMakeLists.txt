@@ -97,7 +97,7 @@ include_directories(${PCL_INCLUDE_DIRS})
 include(${OROL_SOURCE_DIR}/cmake/modules/FindQMat.cmake)
 
 # Find QT4
-find_package(Qt4)
+find_package(Qt4 REQUIRED)
 if (QT4_FOUND)
   include(${QT_USE_FILE})
 endif (QT4_FOUND)

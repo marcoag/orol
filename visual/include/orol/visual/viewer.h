@@ -14,20 +14,25 @@
 
 using namespace std;
 
+typedef pcl::PointXYZRGBA PointT;
+
 class Viewer: public QWidget
 {
 Q_OBJECT
 
   QTimer timer;
   OsgView *world3D;
-  InnerModelManager *innerModelManager;
+  InnerModelViewer *innermodelviewer;
+  InnerModel *innermodel;
+  InnerModelManager *innermodelmanager;
   QMutex innermodelMutex;
   
 public:
-  Viewer();
+  Viewer(string innermodelMap);
   ~Viewer();
   
-    void resizeEvent(QResizeEvent * event);
+  void addPointCloud(pcl::PointCloud<PointT>::Ptr cloud);
+  void resizeEvent(QResizeEvent * event);
 
 public slots:
   void update();

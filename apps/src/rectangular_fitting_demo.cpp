@@ -1,5 +1,6 @@
 #include <orol/shapes/rectprism.h>
 #include <orol/fitting/naive_rect_prism_fitting.h>
+#include <orol/visual/viewer.h>
 
 #include <pcl/point_types.h>
 #include <pcl/common/transforms.h>
@@ -141,6 +142,7 @@ int main (int argc, char argv[])
   
   fitter.adapt();
 
-  
+  Viewer *v = new Viewer("scenario.xml");
+  v->addPointCloud(cloud2fit);
   
 }
