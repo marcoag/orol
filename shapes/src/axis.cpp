@@ -1,7 +1,4 @@
-// Axis
-// Changelog 01.12.17
 #include <stdio.h>
-//#include "axis.h"
 #include <orol/shapes/axis.h>
 
 /*!

@@ -1,5 +1,3 @@
-// Cylinder
-// Changelog 01.12.17
 #include <orol/shapes/cylinder.h>
 
 /*!

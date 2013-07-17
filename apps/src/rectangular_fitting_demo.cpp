@@ -140,8 +140,7 @@ int main (int argc, char argv[])
   naiveRectangularPrismFitting fitter(rectangular_prism, cloud2fit);
   
   fitter.adapt();
-  
-  rectangular_prism=fitter.getRectangularPrism();
+
   
   
 }

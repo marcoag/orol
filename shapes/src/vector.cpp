@@ -1,8 +1,3 @@
-// Vector  
-// Changelog 00.10.16
-
-// Self include
-//#include "vector.h"
 #include <orol/shapes/vector.h>
 
 /*!
