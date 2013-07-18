@@ -97,7 +97,7 @@ void moveACloud(pcl::PointCloud<PointT>::Ptr cloud2move, float X, float Y, float
   pcl::transformPointCloud(*cloud2move,*cloud2move,TransMat );
 }
   
-int main (int argc, char argv[])
+int main (int argc, char* argv[])
 {
   pcl::PointCloud<PointT>::Ptr cloud2fit;
   RectPrism *rectangular_prism = new RectPrism(); 
@@ -142,7 +142,11 @@ int main (int argc, char argv[])
   
   fitter.adapt();
 
-  Viewer *v = new Viewer("scenario.xml");
+  QApplication app(argc, argv);
+  Viewer *v = new Viewer("scenarios/cubeCloud.xml");
+  
   v->addPointCloud(cloud2fit);
+  
+    app.exec();
   
 }

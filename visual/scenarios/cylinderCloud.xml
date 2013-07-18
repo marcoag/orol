@@ -1,0 +1,11 @@
+<innerModel>
+  <pointcloud id="cloud" /> 
+  <transform id="world" >
+    <transform id="cilinder_0_t">
+      <mesh id="cilinder_0" file="cilinderxxx.3ds" scale="500" rx="0" render="wireframe"/>
+    </transform>
+  </transform>
+  <mesh id="rawOdometry_mesh" file="axis.osg" scale="30" rx="1.57" render="wireframe" /> 
+</innerModel>
+
+
