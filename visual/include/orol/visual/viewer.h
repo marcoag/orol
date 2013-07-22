@@ -30,6 +30,7 @@ Q_OBJECT
 public:
   Viewer(string innermodelMap);
   ~Viewer();
+  bool event(QEvent *e);
   
   void addPointCloud(pcl::PointCloud<PointT>::Ptr cloud);
   void resizeEvent(QResizeEvent * event);

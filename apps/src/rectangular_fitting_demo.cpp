@@ -1,6 +1,7 @@
 #include <orol/shapes/rectprism.h>
 #include <orol/fitting/naive_rect_prism_fitting.h>
 #include <orol/visual/viewer.h>
+#include <pthread.h>
 
 #include <pcl/point_types.h>
 #include <pcl/common/transforms.h>
@@ -96,6 +97,17 @@ void moveACloud(pcl::PointCloud<PointT>::Ptr cloud2move, float X, float Y, float
                     
   pcl::transformPointCloud(*cloud2move,*cloud2move,TransMat );
 }
+
+class hilo: public QThread
+{
+  QApplication *app;
+  Viewer *v;
+
+public:
+  hilo() { }
+  void run() { int argc = 0; char* argv[] = {""};  app= new QApplication(argc,argv); v = new Viewer("scenarios/cubeCloud.xml"); exec();}
+ 
+};
   
 int main (int argc, char* argv[])
 {
@@ -142,11 +154,13 @@ int main (int argc, char* argv[])
   
   fitter.adapt();
 
-  QApplication app(argc, argv);
-  Viewer *v = new Viewer("scenarios/cubeCloud.xml");
+  hilo *h = new hilo();
+ 
+  h->start();  
+  while(h->isRunning()){usleep(10);}
+
   
-  v->addPointCloud(cloud2fit);
   
-    app.exec();
+  
   
 }
