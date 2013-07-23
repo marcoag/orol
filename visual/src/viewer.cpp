@@ -40,6 +40,22 @@ void Viewer::addPointCloud(pcl::PointCloud<PointT>::Ptr cloud)
   
 }
 
+void Viewer::setPose(std::string item,  QVec t,  QVec r,  QVec s)
+{
+  innermodelMutex.lock();
+  innermodelmanager->setPose( item, t, r, s );
+  innermodelMutex.unlock();
+  world3D->update();
+}
+
+void Viewer::setScale(std::string item, float scaleX,float scaleY, float scaleZ)
+{
+  innermodelMutex.lock();
+  innermodelmanager->setScale(item, scaleX, scaleY, scaleZ);
+  innermodelMutex.unlock();
+  world3D->update();
+}
+
 void Viewer::update()
 {
     world3D->update();

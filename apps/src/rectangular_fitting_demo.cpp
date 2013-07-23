@@ -1,7 +1,7 @@
 #include <orol/shapes/rectprism.h>
 #include <orol/fitting/naive_rect_prism_fitting.h>
 #include <orol/visual/viewer.h>
-#include <pthread.h>
+#include <iostream>
 
 #include <pcl/point_types.h>
 #include <pcl/common/transforms.h>
@@ -98,16 +98,7 @@ void moveACloud(pcl::PointCloud<PointT>::Ptr cloud2move, float X, float Y, float
   pcl::transformPointCloud(*cloud2move,*cloud2move,TransMat );
 }
 
-class hilo: public QThread
-{
-  QApplication *app;
-  Viewer *v;
 
-public:
-  hilo() { }
-  void run() { int argc = 0; char* argv[] = {""};  app= new QApplication(argc,argv); v = new Viewer("scenarios/cubeCloud.xml"); exec();}
- 
-};
   
 int main (int argc, char* argv[])
 {
@@ -151,16 +142,28 @@ int main (int argc, char* argv[])
   rectangular_prism->setRotation(QVec::vec3(0,0,0));
   
   naiveRectangularPrismFitting fitter(rectangular_prism, cloud2fit);
+   
+  rectangular_prism->getCenter().print("center");
+  rectangular_prism->getRotation().print("rotation");
+  rectangular_prism->getWidth().print("width");
   
   fitter.adapt();
 
-  hilo *h = new hilo();
- 
-  h->start();  
-  while(h->isRunning()){usleep(10);}
-
+  QApplication app(argc, argv);
   
+  Viewer v(argv[1]);
+  v.addPointCloud(cloud2fit);
   
+  //set the rectangular_prism size and pose
+  rectangular_prism->getCenter().print("center");
+  rectangular_prism->getRotation().print("rotation");
+  rectangular_prism->getWidth().print("width");
   
+  rectangular_prism=fitter.getRectangularPrism();
+  
+  v.setPose("cube_0_t", rectangular_prism->getCenter(), rectangular_prism->getRotation(), rectangular_prism->getWidth() );
+  v.setScale("cube_0", rectangular_prism->getWidth()(0)/2, rectangular_prism->getWidth()(1)/2, rectangular_prism->getWidth()(2)/2);
+  
+  app.exec();
   
 }

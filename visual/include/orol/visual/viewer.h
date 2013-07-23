@@ -30,10 +30,12 @@ Q_OBJECT
 public:
   Viewer(string innermodelMap);
   ~Viewer();
-  bool event(QEvent *e);
   
   void addPointCloud(pcl::PointCloud<PointT>::Ptr cloud);
   void resizeEvent(QResizeEvent * event);
+  
+  void setPose(std::string item,  QVec t,  QVec r,  QVec s);
+  void setScale(std::string item, float scaleX,float scaleY, float scaleZ);
 
 public slots:
   void update();
