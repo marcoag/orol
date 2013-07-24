@@ -1,5 +1,36 @@
 #include <orol/fitting/naive_rect_prism_fitting.h>
 
+naiveRectangularPrismFitting::naiveRectangularPrismFitting(boost::shared_ptr<RectPrism> shape, pcl::PointCloud<PointT>::Ptr cloud)
+: running (false)
+{ 
+  shape2Fit=shape; 
+  pointCloud2Fit=cloud; 
+  
+  captured_thread = boost::thread (&naiveRectangularPrismFitting::captureThreadFunction, this);
+  fitting_signal = createSignal<sig_cb_fitting_addapt> ();
+}
+
+void naiveRectangularPrismFitting::captureThreadFunction ()
+{
+  while (true)
+  {
+    // Lock before checking running flag
+    boost::unique_lock<boost::mutex> capture_lock (capture_mutex);
+    if(running)
+    {
+      adapt ();
+    
+      // Check for shape slots
+//       if (num_slots<sig_cb_dinast_point_cloud> () > 0 )
+//         point_cloud_signal_->operator() (getXYZIPointCloud ());
+      if (num_slots<sig_cb_fitting_addapt> () > 0 )
+        fitting_signal->operator() (getRectangularPrism ());
+      
+    } 
+    capture_lock.unlock ();
+  }
+}
+  
 float naiveRectangularPrismFitting::computeWeight()
 {
   
@@ -235,4 +266,55 @@ void naiveRectangularPrismFitting::incRotation(int index)
     
     //cout<<"tranformedWeight: "<<transformedWeight<<endl;
   }
+}
+
+/// move to parent in the future:
+
+template<typename T> int
+naiveRectangularPrismFitting::num_slots () const
+{
+  typedef boost::signals2::signal<T> Signal;
+
+  // see if we have a signal for this type
+  std::map<std::string, boost::signals2::signal_base*>::const_iterator signal_it = signals_.find (typeid (T).name ());
+  if (signal_it != signals_.end ())
+  {
+    Signal* signal = dynamic_cast<Signal*> (signal_it->second);
+//       return (static_cast<int> (signal->num_slots ()));
+  }
+  return (0);
+}
+
+
+template<typename T> boost::signals2::signal<T>*
+naiveRectangularPrismFitting::createSignal ()
+{
+  typedef boost::signals2::signal<T> Signal;
+
+  if (signals_.find (typeid (T).name ()) == signals_.end ())
+  {
+    Signal* signal = new Signal ();
+    signals_[typeid (T).name ()] = signal;
+    return (signal);
+  }
+  return (0);
+
+}
+
+template<typename T> boost::signals2::connection
+naiveRectangularPrismFitting::registerCallback (const boost::function<T> & callback)
+{
+  typedef boost::signals2::signal<T> Signal;
+  if (signals_.find (typeid (T).name ()) == signals_.end ())
+  {
+
+    std::cout << "no callback for type:" << typeid (T).name ();
+  }
+  Signal* signal = dynamic_cast<Signal*> (signals_[typeid (T).name ()]);
+  boost::signals2::connection ret = signal->connect (callback);
+
+  connections[typeid (T).name ()].push_back (ret);
+  shared_connections[typeid (T).name ()].push_back (boost::signals2::shared_connection_block (connections[typeid (T).name ()].back (), false));
+ //signalsChanged ();
+  return (ret);
 }

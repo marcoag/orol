@@ -90,11 +90,8 @@ endmacro()
 macro(OROL_ADD_EXECUTABLE _name _component)
     add_executable(${_name} ${ARGN})
     # must link explicitly against boost.
-    if(UNIX AND NOT ANDROID)
-      target_link_libraries(${_name} ${Boost_LIBRARIES} pthread m ${CLANG_LIBRARIES})
-    else()
-      target_link_libraries(${_name} ${Boost_LIBRARIES})
-    endif()
+
+    target_link_libraries(${_name} ${Boost_LIBRARIES} pthread m ${CLANG_LIBRARIES})
     #
     # Only link if needed
     if(WIN32 AND MSVC)
