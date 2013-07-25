@@ -101,17 +101,21 @@ void moveACloud(pcl::PointCloud<PointT>::Ptr cloud2move, float X, float Y, float
 class fitterViewer
 {
   public:
-    inline fitterViewer():v("cubeCloud.xml") {}
+    inline fitterViewer() {}
     
     void fit_cb (const boost::shared_ptr<RectPrism>  &shape)
     {
-      v.setPose("cube_0_t", shape->getCenter(), shape->getRotation(), shape->getWidth() );
-      v.setScale("cube_0", shape->getWidth()(0)/2, shape->getWidth()(1)/2, shape->getWidth()(2)/2);
+      v->setPose("cube_0_t", shape->getCenter(), shape->getRotation(), shape->getWidth() );
+      v->setScale("cube_0", shape->getWidth()(0)/2, shape->getWidth()(1)/2, shape->getWidth()(2)/2);
     }
     
     void run(boost::shared_ptr<RectPrism> shape, pcl::PointCloud<PointT>::Ptr cloud)
     {
        QApplication app(0,NULL);
+       
+       boost::shared_ptr<Viewer> v_local(new Viewer("cubeCloud.xml"));
+       v=v_local;
+       v->setPointCloud(cloud);
       
        naiveRectangularPrismFitting* fitter = new naiveRectangularPrismFitting(shape, cloud);
 
@@ -125,7 +129,7 @@ class fitterViewer
        app.exec();
     }
     
-    Viewer v;
+    boost::shared_ptr<Viewer> v; 
     
 };
 
@@ -166,34 +170,16 @@ int main (int argc, char* argv[])
   float ratio=max_eigenvalue/max_distance;
   
   //set initial values for the rectangular prism
-  rectangular_prism->setCenter(QVec::vec3(centroid(0), centroid(1), centroid(2)));
-  rectangular_prism->setWidth(QVec::vec3((eigen_values(0)/ratio),(eigen_values(0)/ratio),(eigen_values(0)/ratio)));
+//   rectangular_prism->setCenter(QVec::vec3(centroid(0), centroid(1), centroid(2)));
+//   rectangular_prism->setWidth(QVec::vec3((eigen_values(0)/ratio),(eigen_values(0)/ratio),(eigen_values(0)/ratio)));
+
+  rectangular_prism->setCenter(QVec::vec3(440,0,0));
+  rectangular_prism->setWidth(QVec::vec3(100,100,400));
   ///TODO make rotation dependant on the eigen_vectors
   rectangular_prism->setRotation(QVec::vec3(0,0,0));
   
-//   naiveRectangularPrismFitting fitter(rectangular_prism, cloud2fit);
-//    
-//   rectangular_prism->getCenter().print("center");
-//   rectangular_prism->getRotation().print("rotation");
-//   rectangular_prism->getWidth().print("width");
-//   
-//   fitter.adapt();
-//   
-//   Viewer v(argv[1]);
-//   v.addPointCloud(cloud2fit);
-//   
-//   //set the rectangular_prism size and pose
-//   rectangular_prism->getCenter().print("center");
-//   rectangular_prism->getRotation().print("rotation");
-//   rectangular_prism->getWidth().print("width");
-//   
-//   rectangular_prism=fitter.getRectangularPrism();
-//   
-//   v.setPose("cube_0_t", rectangular_prism->getCenter(), rectangular_prism->getRotation(), rectangular_prism->getWidth() );
-//   v.setScale("cube_0", rectangular_prism->getWidth()(0)/2, rectangular_prism->getWidth()(1)/2, rectangular_prism->getWidth()(2)/2);
-//   
-//   app.exec();
   
+  //create fitter
   fitterViewer f;
   f.run(rectangular_prism, cloud2fit);
   

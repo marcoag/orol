@@ -14,15 +14,13 @@ void naiveRectangularPrismFitting::captureThreadFunction ()
 {
   while (true)
   {
+
     // Lock before checking running flag
     boost::unique_lock<boost::mutex> capture_lock (capture_mutex);
     if(running)
     {
       adapt ();
-    
       // Check for shape slots
-//       if (num_slots<sig_cb_dinast_point_cloud> () > 0 )
-//         point_cloud_signal_->operator() (getXYZIPointCloud ());
       if (num_slots<sig_cb_fitting_addapt> () > 0 )
         fitting_signal->operator() (getRectangularPrism ());
       
@@ -33,20 +31,19 @@ void naiveRectangularPrismFitting::captureThreadFunction ()
   
 float naiveRectangularPrismFitting::computeWeight()
 {
-  
-  float weight=0.;
+  weight=0.;
   //estimate normals
   pcl::NormalEstimation<pcl::PointXYZRGBA, pcl::Normal> ne;
   ne.setInputCloud (pointCloud2Fit);
   pcl::search::KdTree<pcl::PointXYZRGBA>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGBA> ());
   ne.setSearchMethod (tree);
-  // Output pointCloud2Fitsets
+  // Output datasets
   pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>);
   // Use all neighbors in a sphere of radius 3cm
   ne.setRadiusSearch (5);
   // Compute the features
   ne.compute (*cloud_normals);
-  
+
   int normalint =0;
   for( pcl::PointCloud<pcl::PointXYZRGBA>::iterator it = pointCloud2Fit->begin(); it != pointCloud2Fit->end(); it++ )
   {
@@ -54,22 +51,24 @@ float naiveRectangularPrismFitting::computeWeight()
     QVec point = QVec::vec3(it->x, it->y, it->z);
     QVec normal = QVec::vec3( cloud_normals->points[normalint].normal_x,cloud_normals->points[normalint].normal_y, cloud_normals->points[normalint].normal_z);
 
+
     double dist = shape2Fit->distance(point,normal);
-    
     weight += dist;
     normalint++;
   }
   
-  weight /= pointCloud2Fit->points.size();
-  
-  weight = 1./(this->weight+0.1);
-  
+   weight /= pointCloud2Fit->points.size();
+//   
+   //const float distance_weight = 1./(this->weight+0.1);
+// 
+//   
+   //weight=distance_weight;//*topbottom_weight;
+  cout<<weight<<endl;
   return weight;
 }
 
 void naiveRectangularPrismFitting::adapt()
 {
-  incTranslation(0);
   
   switch(rand()%9)
   {
@@ -266,55 +265,4 @@ void naiveRectangularPrismFitting::incRotation(int index)
     
     //cout<<"tranformedWeight: "<<transformedWeight<<endl;
   }
-}
-
-/// move to parent in the future:
-
-template<typename T> int
-naiveRectangularPrismFitting::num_slots () const
-{
-  typedef boost::signals2::signal<T> Signal;
-
-  // see if we have a signal for this type
-  std::map<std::string, boost::signals2::signal_base*>::const_iterator signal_it = signals_.find (typeid (T).name ());
-  if (signal_it != signals_.end ())
-  {
-    Signal* signal = dynamic_cast<Signal*> (signal_it->second);
-//       return (static_cast<int> (signal->num_slots ()));
-  }
-  return (0);
-}
-
-
-template<typename T> boost::signals2::signal<T>*
-naiveRectangularPrismFitting::createSignal ()
-{
-  typedef boost::signals2::signal<T> Signal;
-
-  if (signals_.find (typeid (T).name ()) == signals_.end ())
-  {
-    Signal* signal = new Signal ();
-    signals_[typeid (T).name ()] = signal;
-    return (signal);
-  }
-  return (0);
-
-}
-
-template<typename T> boost::signals2::connection
-naiveRectangularPrismFitting::registerCallback (const boost::function<T> & callback)
-{
-  typedef boost::signals2::signal<T> Signal;
-  if (signals_.find (typeid (T).name ()) == signals_.end ())
-  {
-
-    std::cout << "no callback for type:" << typeid (T).name ();
-  }
-  Signal* signal = dynamic_cast<Signal*> (signals_[typeid (T).name ()]);
-  boost::signals2::connection ret = signal->connect (callback);
-
-  connections[typeid (T).name ()].push_back (ret);
-  shared_connections[typeid (T).name ()].push_back (boost::signals2::shared_connection_block (connections[typeid (T).name ()].back (), false));
- //signalsChanged ();
-  return (ret);
 }

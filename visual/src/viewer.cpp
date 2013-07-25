@@ -31,7 +31,7 @@ Viewer::~Viewer()
   delete(innermodelviewer);
 }
 
-void Viewer::addPointCloud(pcl::PointCloud<PointT>::Ptr cloud)
+void Viewer::setPointCloud(pcl::PointCloud<PointT>::Ptr cloud)
 {
   
   innermodelMutex.lock();

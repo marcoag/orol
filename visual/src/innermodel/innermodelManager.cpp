@@ -59,8 +59,6 @@ void InnerModelManager::setScale(std::string item, float scaleX,float scaleY, fl
   //QMutexLocker locker (mutex);
   QString qItem = QString::fromStdString(item);
   QString m="RoboCompInnerModelManager::setScale()"; 
-
-    std::cout<<item<<std::endl;
   
   InnerModelMesh *aux = dynamic_cast<InnerModelMesh*>(getNode(QString::fromStdString(item),m));
   checkOperationInvalidNode(aux,m + qItem +"can't be use as base because it's not a InnerModelMesh node.");

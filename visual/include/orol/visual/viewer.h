@@ -31,7 +31,7 @@ public:
   Viewer(string innermodelMap);
   ~Viewer();
   
-  void addPointCloud(pcl::PointCloud<PointT>::Ptr cloud);
+  void setPointCloud(pcl::PointCloud<PointT>::Ptr cloud);
   void resizeEvent(QResizeEvent * event);
   
   void setPose(std::string item,  QVec t,  QVec r,  QVec s);
