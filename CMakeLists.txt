@@ -100,6 +100,7 @@ include(${OROL_SOURCE_DIR}/cmake/modules/FindQMat.cmake)
 find_package(Qt4 REQUIRED)
 if (QT4_FOUND)
   include(${QT_USE_FILE})
+  add_definitions("-DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED")
 endif (QT4_FOUND)
 
 
