@@ -29,7 +29,7 @@ class naiveRectangularPrismFitting: public fitting
   boost::signals2::signal<sig_cb_fitting_addapt>* fitting_signal;
   
 public:
-  naiveRectangularPrismFitting (boost::shared_ptr<RectPrism> shape, pcl::PointCloud<PointT>::Ptr cloud);
+  naiveRectangularPrismFitting ( pcl::PointCloud<PointT>::Ptr cloud );
   //Get and set cloud
   inline void setCloud (pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud) { cout<<"setcloud"<<endl; pointCloud2Fit=cloud; }
   inline pcl::PointCloud<pcl::PointXYZRGBA>::Ptr getCloud () { return pointCloud2Fit; }
@@ -43,6 +43,7 @@ public:
   void adapt();
   
 protected:
+  void initRectangularPrism ();
   void captureThreadFunction ();
   void incTranslation (int index);
   void incWidth (int index);

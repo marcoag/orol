@@ -1,12 +1,52 @@
 #include <orol/fitting/naive_rect_prism_fitting.h>
 
-naiveRectangularPrismFitting::naiveRectangularPrismFitting(boost::shared_ptr<RectPrism> shape, pcl::PointCloud<PointT>::Ptr cloud)
-{ 
-  shape2Fit=shape; 
+naiveRectangularPrismFitting::naiveRectangularPrismFitting( pcl::PointCloud<PointT>::Ptr cloud ): shape2Fit(new RectPrism())
+{  
   pointCloud2Fit=cloud; 
   
   captured_thread = boost::thread (&naiveRectangularPrismFitting::captureThreadFunction, this);
   fitting_signal = createSignal<sig_cb_fitting_addapt> ();
+  
+  //initialize Rectangular prism to cloud
+  initRectangularPrism();
+}
+
+void naiveRectangularPrismFitting::initRectangularPrism ()
+{
+  
+  Eigen::Vector4f centroid;
+  Eigen::Matrix3f covariance_matrix;
+  EIGEN_ALIGN16 Eigen::Vector3f eigen_values;
+  EIGEN_ALIGN16 Eigen::Matrix3f eigen_vectors;
+  
+  //calculate centroid, eigen values and eigen vectors
+  pcl::computeMeanAndCovarianceMatrix(*pointCloud2Fit, covariance_matrix, centroid);
+  pcl::eigen33(covariance_matrix, eigen_vectors, eigen_values);
+  
+  //calculate ratio to resize the eigen_value 
+  float max_distance=0;
+  float max_eigenvalue=0;
+  if(max_eigenvalue - eigen_values(0) < 0)
+    max_eigenvalue=eigen_values(0);
+  if(max_eigenvalue - eigen_values(1) < 0)
+    max_eigenvalue=eigen_values(1);
+  if(max_eigenvalue - eigen_values(2) < 0)
+    max_eigenvalue=eigen_values(2);
+  for (pcl::PointCloud<pcl::PointXYZRGBA>::iterator it = pointCloud2Fit->points.begin (); it < pointCloud2Fit->points.end (); ++it)
+  {
+    float distance=fabs(sqrt(pow((it->x)-centroid(0),2.0)+pow((it->y)-centroid(2),2.0)+pow((it->z)-centroid(1),2.0)));
+    if (max_distance<distance)
+      max_distance=distance;
+  }
+  float ratio=max_eigenvalue/max_distance;
+  
+  //set initial values for the rectangular prism
+  shape2Fit->setCenter(QVec::vec3(centroid(0), centroid(1), centroid(2)));
+  shape2Fit->setWidth(QVec::vec3((eigen_values(0)/ratio),(eigen_values(0)/ratio),(eigen_values(0)/ratio)));
+
+//   shape2Fit->setCenter(QVec::vec3(440,0,0));
+//   shape2Fit->setWidth(QVec::vec3(100,100,400));
+  shape2Fit->setRotation(QVec::vec3(0,0,0));
 }
 
 void naiveRectangularPrismFitting::captureThreadFunction ()
@@ -63,15 +103,7 @@ float naiveRectangularPrismFitting::computeWeight()
 
 void naiveRectangularPrismFitting::adapt()
 {
-/*     incTranslation(0);    
-   incTranslation(1);
-   incTranslation(2);
-   incRotation(0);
-   incRotation(1);
-   incRotation(2);
-   incWidth(0);
-   incWidth(1);
-   incWidth(2);  */ 
+  
   switch(rand()%9)
   {
     //x
@@ -170,15 +202,6 @@ void naiveRectangularPrismFitting::incTranslation(int index)
     computeWeight();
   }
 
-//   QVec auxvec;
-//   float positiveWeight, negativeWeight, transformedWeight;
-//   QVec width = shape2Fit->getWidth();
-//   float inc = width(index)/40;
-//   auxvec = shape2Fit->getCenter();
-//   
-//   auxvec(index)=auxvec(index)+inc;
-//   shape2Fit->setCenter(auxvec);
-//   computeWeight();
 }
 
 void naiveRectangularPrismFitting::incRotation(int index)

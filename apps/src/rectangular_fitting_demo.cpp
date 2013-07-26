@@ -109,7 +109,7 @@ class fitterViewer
       v->setScale("cube_0", shape->getWidth()(0)/2, shape->getWidth()(1)/2, shape->getWidth()(2)/2);
     }
     
-    void run(boost::shared_ptr<RectPrism> shape, pcl::PointCloud<PointT>::Ptr cloud)
+    void run(pcl::PointCloud<PointT>::Ptr cloud)
     {
        QApplication app(0,NULL);
        
@@ -117,7 +117,9 @@ class fitterViewer
        v=v_local;
        v->setPointCloud(cloud);
       
-       naiveRectangularPrismFitting* fitter = new naiveRectangularPrismFitting(shape, cloud);
+       
+  boost::shared_ptr<RectPrism> shape(new RectPrism());
+       naiveRectangularPrismFitting* fitter = new naiveRectangularPrismFitting( cloud );
 
        boost::function<void (const boost::shared_ptr<RectPrism>&)> f =
          boost::bind (&fitterViewer::fit_cb, this, _1);
@@ -135,52 +137,12 @@ class fitterViewer
 
   
 int main (int argc, char* argv[])
-{
-  pcl::PointCloud<PointT>::Ptr cloud2fit;
-  boost::shared_ptr<RectPrism> rectangular_prism (new RectPrism()); 
-  
-  Eigen::Vector4f centroid;
-  Eigen::Matrix3f covariance_matrix;
-  EIGEN_ALIGN16 Eigen::Vector3f eigen_values;
-  EIGEN_ALIGN16 Eigen::Matrix3f eigen_vectors;
-  
-  
+{ 
   //Create sintetic cube
-  cloud2fit = sinteticCubeCloud (100,100,400,50);
-  
-  //calculate centroid, eigen values and eigen vectors
-  pcl::computeMeanAndCovarianceMatrix(*cloud2fit, covariance_matrix, centroid);
-  pcl::eigen33(covariance_matrix, eigen_vectors, eigen_values);
-  
-  //calculate ratio to resize the eigen_value 
-  float max_distance=0;
-  float max_eigenvalue=0;
-  if(max_eigenvalue - eigen_values(0) < 0)
-    max_eigenvalue=eigen_values(0);
-  if(max_eigenvalue - eigen_values(1) < 0)
-    max_eigenvalue=eigen_values(1);
-  if(max_eigenvalue - eigen_values(2) < 0)
-    max_eigenvalue=eigen_values(2);
-  for (pcl::PointCloud<pcl::PointXYZRGBA>::iterator it = cloud2fit->points.begin (); it < cloud2fit->points.end (); ++it)
-  {
-    float distance=fabs(sqrt(pow((it->x)-centroid(0),2.0)+pow((it->y)-centroid(2),2.0)+pow((it->z)-centroid(1),2.0)));
-    if (max_distance<distance)
-      max_distance=distance;
-  }
-  float ratio=max_eigenvalue/max_distance;
-  
-  //set initial values for the rectangular prism
-  rectangular_prism->setCenter(QVec::vec3(centroid(0), centroid(1), centroid(2)));
-  rectangular_prism->setWidth(QVec::vec3((eigen_values(0)/ratio),(eigen_values(0)/ratio),(eigen_values(0)/ratio)));
-
-//   rectangular_prism->setCenter(QVec::vec3(440,0,0));
-//   rectangular_prism->setWidth(QVec::vec3(100,100,400));
-  ///TODO make rotation dependant on the eigen_vectors
-  rectangular_prism->setRotation(QVec::vec3(0,0,0));
-  
-  
+  pcl::PointCloud<PointT>::Ptr cloud2fit = sinteticCubeCloud (100,100,400,50);
   //create fitter
   fitterViewer f;
-  f.run(rectangular_prism, cloud2fit);
+  
+  f.run(cloud2fit);
   
 }
