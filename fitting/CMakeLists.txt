@@ -7,6 +7,7 @@ set(srcs
    )
    
 set(incs
+      include/orol/${SUBSYS_NAME}/fitting.h
       include/orol/${SUBSYS_NAME}/naive_rect_prism_fitting.h
    )
 

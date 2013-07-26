@@ -170,11 +170,11 @@ int main (int argc, char* argv[])
   float ratio=max_eigenvalue/max_distance;
   
   //set initial values for the rectangular prism
-//   rectangular_prism->setCenter(QVec::vec3(centroid(0), centroid(1), centroid(2)));
-//   rectangular_prism->setWidth(QVec::vec3((eigen_values(0)/ratio),(eigen_values(0)/ratio),(eigen_values(0)/ratio)));
+  rectangular_prism->setCenter(QVec::vec3(centroid(0), centroid(1), centroid(2)));
+  rectangular_prism->setWidth(QVec::vec3((eigen_values(0)/ratio),(eigen_values(0)/ratio),(eigen_values(0)/ratio)));
 
-  rectangular_prism->setCenter(QVec::vec3(440,0,0));
-  rectangular_prism->setWidth(QVec::vec3(100,100,400));
+//   rectangular_prism->setCenter(QVec::vec3(440,0,0));
+//   rectangular_prism->setWidth(QVec::vec3(100,100,400));
   ///TODO make rotation dependant on the eigen_vectors
   rectangular_prism->setRotation(QVec::vec3(0,0,0));
   

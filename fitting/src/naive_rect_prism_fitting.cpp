@@ -1,7 +1,6 @@
 #include <orol/fitting/naive_rect_prism_fitting.h>
 
 naiveRectangularPrismFitting::naiveRectangularPrismFitting(boost::shared_ptr<RectPrism> shape, pcl::PointCloud<PointT>::Ptr cloud)
-: running (false)
 { 
   shape2Fit=shape; 
   pointCloud2Fit=cloud; 
@@ -64,7 +63,7 @@ float naiveRectangularPrismFitting::computeWeight()
 
 void naiveRectangularPrismFitting::adapt()
 {
-     incTranslation(0);    
+/*     incTranslation(0);    
    incTranslation(1);
    incTranslation(2);
    incRotation(0);
@@ -72,46 +71,46 @@ void naiveRectangularPrismFitting::adapt()
    incRotation(2);
    incWidth(0);
    incWidth(1);
-   incWidth(2);   
-//   switch(rand()%9)
-//   {
-//     //x
-//     case 0:
-//       incTranslation(0);
-//       break;
-//     //y
-//     case 1:
-//       incTranslation(1);
-//       break;
-//     //z
-//     case 2:
-//       incTranslation(2);
-//       break;
-//     //Wx
-//     case 3:
-//       incWidth(0);
-//       break;
-//     //Wy
-//     case 4:
-//       incWidth(1);
-//       break;  
-//     //Wz
-//     case 5:
-//       incWidth(2);
-//       break;
-//     //Rx
-//     case 6:
-//       incRotation(0);
-//       break;
-//     //Ry
-//     case 7:
-//       incRotation(1);
-//       break;
-//     //Rz
-//     case 8:
-//       incRotation(2);
-//       break;       
-//   }
+   incWidth(2);  */ 
+  switch(rand()%9)
+  {
+    //x
+    case 0:
+      incTranslation(0);
+      break;
+    //y
+    case 1:
+      incTranslation(1);
+      break;
+    //z
+    case 2:
+      incTranslation(2);
+      break;
+    //Wx
+    case 3:
+      incWidth(0);
+      break;
+    //Wy
+    case 4:
+      incWidth(1);
+      break;  
+    //Wz
+    case 5:
+      incWidth(2);
+      break;
+    //Rx
+    case 6:
+      incRotation(0);
+      break;
+    //Ry
+    case 7:
+      incRotation(1);
+      break;
+    //Rz
+    case 8:
+      incRotation(2);
+      break;       
+  }
 }
 
 void naiveRectangularPrismFitting::incTranslation(int index)
