@@ -201,7 +201,7 @@ double RectPrism::distance(const QVec &point,const QVec normal)
           
 //        The old way
       double distances[6];
-      double max_distance=0;
+      double min_distance=-1;
       //-x
       distances[0]=fabs((-Wx/2)-point2(0));
       //y
@@ -217,18 +217,18 @@ double RectPrism::distance(const QVec &point,const QVec normal)
       
       //get the minimum distance
       //triing with max instead
-      max_distance=distances[0];
+      min_distance=distances[0];
       int indice;
       for(int i=1;i<6;i++)
       {
-        if (max_distance>distances[i])
+        if (min_distance>distances[i])
         {
-          max_distance=distances[i];
+          min_distance=distances[i];
           indice=i;
         }
         //min_distance+=distances[i];
       }
-      return max_distance;
+      return min_distance;
 //       float total_distance=0;
 //       for(int i=0;i<6;i++)
 //       {

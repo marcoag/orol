@@ -53,62 +53,65 @@ float naiveRectangularPrismFitting::computeWeight()
 
 
     double dist = shape2Fit->distance(point,normal);
-    weight += dist;
+    weight += dist*dist;
     normalint++;
   }
   
-   weight /= pointCloud2Fit->points.size();
-//   
-   //const float distance_weight = 1./(this->weight+0.1);
-// 
-//   
-   //weight=distance_weight;//*topbottom_weight;
-  cout<<weight<<endl;
+  weight /= pointCloud2Fit->points.size();
+
   return weight;
 }
 
 void naiveRectangularPrismFitting::adapt()
 {
-  
-  switch(rand()%9)
-  {
-    //x
-    case 0:
-      incTranslation(0);
-      break;
-    //y
-    case 1:
-      incTranslation(1);
-      break;
-    //z
-    case 2:
-      incTranslation(2);
-      break;
-    //Wx
-    case 3:
-      incWidth(0);
-      break;
-    //Wy
-    case 4:
-      incWidth(1);
-      break;  
-    //Wz
-    case 5:
-      incWidth(2);
-      break;
-    //Rx
-    case 6:
-      incRotation(0);
-      break;
-    //Ry
-    case 7:
-      incRotation(1);
-      break;
-    //Rz
-    case 8:
-      incRotation(2);
-      break;       
-  }
+     incTranslation(0);    
+   incTranslation(1);
+   incTranslation(2);
+   incRotation(0);
+   incRotation(1);
+   incRotation(2);
+   incWidth(0);
+   incWidth(1);
+   incWidth(2);   
+//   switch(rand()%9)
+//   {
+//     //x
+//     case 0:
+//       incTranslation(0);
+//       break;
+//     //y
+//     case 1:
+//       incTranslation(1);
+//       break;
+//     //z
+//     case 2:
+//       incTranslation(2);
+//       break;
+//     //Wx
+//     case 3:
+//       incWidth(0);
+//       break;
+//     //Wy
+//     case 4:
+//       incWidth(1);
+//       break;  
+//     //Wz
+//     case 5:
+//       incWidth(2);
+//       break;
+//     //Rx
+//     case 6:
+//       incRotation(0);
+//       break;
+//     //Ry
+//     case 7:
+//       incRotation(1);
+//       break;
+//     //Rz
+//     case 8:
+//       incRotation(2);
+//       break;       
+//   }
 }
 
 void naiveRectangularPrismFitting::incTranslation(int index)
@@ -118,82 +121,28 @@ void naiveRectangularPrismFitting::incTranslation(int index)
   QVec width = shape2Fit->getWidth();
   float inc = width(index)/40;
   auxvec = shape2Fit->getCenter();
-   
-//   //decide direction
-  auxvec(index)=auxvec(index)+inc;
-  shape2Fit->setCenter(auxvec);
   
-  positiveWeight=computeWeight();
-  
-  //undo and sobstract a quarter = 2 quarters
-  auxvec(index)=auxvec(index)-(inc*2);
-  shape2Fit->setCenter(auxvec);
-  
-  negativeWeight=computeWeight();
-  
-  //undo changes
-  auxvec(index)=auxvec(index)+inc;
-  shape2Fit->setCenter(auxvec);
-  
-  //cout<<"Negative: "<<negativeWeight<<" Positive: "<<positiveWeight<<endl;
-  
-  //if negative is good go with it
-  if(negativeWeight>positiveWeight)
-  {
-    transformedWeight=negativeWeight;
-    inc*=-1;
-  }
-  else
-    transformedWeight=positiveWeight;
-    
-  
-//  cout<<"QQQQQQTransofredWeight: "<<transformedWeight<<" weight"<<this->weight<<endl;
-  while(transformedWeight>weight)
-  {
-   // cout<<"TransofredWeight: "<<transformedWeight<<" weight"<<this->weight<<endl;
-    auxvec(index)=auxvec(index)+inc;
-    shape2Fit->setCenter(auxvec);
-    this->weight=transformedWeight;
-    
-    //calculate futureWeight
-    auxvec(index)=auxvec(index)+inc;
-    shape2Fit->setCenter(auxvec);
-    transformedWeight=computeWeight();
-    auxvec(index)=auxvec(index)-inc;
-    shape2Fit->setCenter(auxvec);
-  }
-  
-  this->weight=computeWeight();
-  //cout<<this->weight<<endl;
-}
-
-
-void naiveRectangularPrismFitting::incWidth(int index)
-{
-  QVec auxvec;
-  float positiveWeight, negativeWeight, transformedWeight;
-  auxvec = shape2Fit->getWidth();
-  float inc = auxvec(index)/40;;
-  
-
   //decide direction
   auxvec(index)=auxvec(index)+inc;
-  shape2Fit->setWidth(auxvec);
-  
-  positiveWeight=computeWeight();
+  shape2Fit->setCenter(auxvec);
+  computeWeight();
+  positiveWeight=weight;
   
   //undo and sobstract a quarter = 2 quarters
   auxvec(index)=auxvec(index)-(inc*2);
-  shape2Fit->setWidth(auxvec);
-  
-  negativeWeight=computeWeight();
+  shape2Fit->setCenter(auxvec);
+  computeWeight();
+  negativeWeight=weight;
   
   //undo changes
   auxvec(index)=auxvec(index)+inc;
-  shape2Fit->setWidth(auxvec);
+  shape2Fit->setCenter(auxvec);
   
+  computeWeight();
+  
+    //cout<<"positive: "<<positiveWeight<<" negative: "<<negativeWeight<<endl;
   //if negative is good go with it
-  if(negativeWeight>positiveWeight)
+  if(negativeWeight<positiveWeight)
   {
     transformedWeight=negativeWeight;
     inc*=-1;
@@ -201,47 +150,65 @@ void naiveRectangularPrismFitting::incWidth(int index)
   else
     transformedWeight=positiveWeight;
     
-  while(transformedWeight>weight)
+
+  
+  //cout<<"Transformed: "<<transformedWeight<<" weight: "<<weight<<endl;
+  while(transformedWeight<weight)
   {
     auxvec(index)=auxvec(index)+inc;
-    shape2Fit->setWidth(auxvec);
+    shape2Fit->setCenter(auxvec);
     weight=transformedWeight;
     
     //calculate futureWeight
     auxvec(index)=auxvec(index)+inc;
-    shape2Fit->setWidth(auxvec);
-    transformedWeight=computeWeight();
+    shape2Fit->setCenter(auxvec);
+    computeWeight();
+    transformedWeight=weight;
+    
+    //undo
     auxvec(index)=auxvec(index)-inc;
-    shape2Fit->setWidth(auxvec);
+    shape2Fit->setCenter(auxvec);
+    computeWeight();
   }
+
+//   QVec auxvec;
+//   float positiveWeight, negativeWeight, transformedWeight;
+//   QVec width = shape2Fit->getWidth();
+//   float inc = width(index)/40;
+//   auxvec = shape2Fit->getCenter();
+//   
+//   auxvec(index)=auxvec(index)+inc;
+//   shape2Fit->setCenter(auxvec);
+//   computeWeight();
 }
 
 void naiveRectangularPrismFitting::incRotation(int index)
 {
   QVec auxvec;
   float positiveWeight, negativeWeight, transformedWeight;
-  auxvec = shape2Fit->getRotation();
+  QVec width = shape2Fit->getWidth();
   float inc = 0.02;
+  auxvec = shape2Fit->getRotation();
   
-
   //decide direction
   auxvec(index)=auxvec(index)+inc;
   shape2Fit->setRotation(auxvec);
-  
-  positiveWeight=computeWeight();
+  computeWeight();
+  positiveWeight=weight;
   
   //undo and sobstract a quarter = 2 quarters
   auxvec(index)=auxvec(index)-(inc*2);
   shape2Fit->setRotation(auxvec);
-  
-  negativeWeight=computeWeight();
+  computeWeight();
+  negativeWeight=weight;
   
   //undo changes
   auxvec(index)=auxvec(index)+inc;
   shape2Fit->setRotation(auxvec);
+  computeWeight();
   
   //if negative is good go with it
-  if(negativeWeight>positiveWeight)
+  if(negativeWeight<positiveWeight)
   {
     transformedWeight=negativeWeight;
     inc*=-1;
@@ -249,20 +216,72 @@ void naiveRectangularPrismFitting::incRotation(int index)
   else
     transformedWeight=positiveWeight;
     
-  while(transformedWeight>weight)
+  while(transformedWeight<weight)
   {
     auxvec(index)=auxvec(index)+inc;
     shape2Fit->setRotation(auxvec);
     weight=transformedWeight;
-  //  cout<<"current: " <<weight<<endl;
     
     //calculate futureWeight
     auxvec(index)=auxvec(index)+inc;
     shape2Fit->setRotation(auxvec);
-    transformedWeight=computeWeight();
+    computeWeight();
+    transformedWeight=weight;
+    
+    //undo
     auxvec(index)=auxvec(index)-inc;
     shape2Fit->setRotation(auxvec);
+    computeWeight();
+  }
+}
+
+void naiveRectangularPrismFitting::incWidth(int index)
+{
+  float positiveWeight, negativeWeight, transformedWeight;
+  QVec auxvec = shape2Fit->getWidth();
+  float inc = auxvec(index)/40;
+  
+  //decide direction
+  auxvec(index)=auxvec(index)+inc;
+  shape2Fit->setWidth(auxvec);
+  computeWeight();
+  positiveWeight=weight;
+  
+  //undo and sobstract a quarter = 2 quarters
+  auxvec(index)=auxvec(index)-(inc*2);
+  shape2Fit->setWidth(auxvec);
+  computeWeight();
+  negativeWeight=weight;
+  
+  //undo changes
+  auxvec(index)=auxvec(index)+inc;
+  shape2Fit->setWidth(auxvec);
+  computeWeight();
+  
+  //if negative is good go with it
+  if(negativeWeight<positiveWeight)
+  {
+    transformedWeight=negativeWeight;
+    inc*=-1;
+  }
+  else
+    transformedWeight=positiveWeight;
     
-    //cout<<"tranformedWeight: "<<transformedWeight<<endl;
+  while(transformedWeight<weight)
+  {
+    auxvec(index)=auxvec(index)+inc;
+    shape2Fit->setWidth(auxvec);
+    weight=transformedWeight;
+    
+    //calculate futureWeight
+    auxvec(index)=auxvec(index)+inc;
+    shape2Fit->setWidth(auxvec);
+    computeWeight();
+    transformedWeight=weight;
+    
+    //undo
+    auxvec(index)=auxvec(index)-inc;
+    shape2Fit->setWidth(auxvec);
+    computeWeight();
   }
 }
