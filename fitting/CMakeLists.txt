@@ -4,11 +4,13 @@ set(SUBSYS_DEPS shapes)
 
 set(srcs
       src/naive_rect_prism_fitting.cpp
+      src/mcmc_rect_prism_fitting.cpp
    )
    
 set(incs
       include/orol/${SUBSYS_NAME}/fitting.h
       include/orol/${SUBSYS_NAME}/naive_rect_prism_fitting.h
+      include/orol/${SUBSYS_NAME}/mcmc_rect_prism_fitting.h
    )
 
 OROL_SUBSYS_DEPEND(build ${SUBSYS_NAME} DEPS ${SUBSYS_DEPS} OPT_DEPS)

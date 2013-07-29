@@ -1,6 +1,7 @@
 #include <orol/fitting/naive_rect_prism_fitting.h>
 
-naiveRectangularPrismFitting::naiveRectangularPrismFitting( pcl::PointCloud<PointT>::Ptr cloud ): shape2Fit(new RectPrism())
+naiveRectangularPrismFitting::naiveRectangularPrismFitting( pcl::PointCloud<PointT>::Ptr cloud )
+: shape2Fit(new RectPrism())
 {  
   pointCloud2Fit=cloud; 
   

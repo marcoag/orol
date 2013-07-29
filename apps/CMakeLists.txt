@@ -8,7 +8,11 @@ OROL_SUBSYS_DEPEND(build ${SUBSYS_NAME} DEPS ${SUBSYS_DEPS} OPT_DEPS)
 include_directories (${CMAKE_CURRENT_BINARY_DIR})
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-OROL_ADD_EXECUTABLE(orol_rectangular_fitting_demo ${SUBSYS_NAME} src/rectangular_fitting_demo.cpp)
-target_link_libraries(orol_rectangular_fitting_demo orol_shapes orol_fitting orol_visual)
+OROL_ADD_EXECUTABLE(orol_naive_rectangular_prism_fitting ${SUBSYS_NAME} src/naive_rectangular_prism_fitting.cpp)
+target_link_libraries(orol_naive_rectangular_prism_fitting orol_shapes orol_fitting orol_visual)
+
+OROL_ADD_EXECUTABLE(orol_mcmc_rectangular_prism_fitting ${SUBSYS_NAME} src/mcmc_rectangular_prism_fitting.cpp)
+target_link_libraries(orol_mcmc_rectangular_prism_fitting orol_shapes orol_fitting orol_visual)
 
 
+   

@@ -1,5 +1,5 @@
 #include <orol/shapes/rectprism.h>
-#include <orol/fitting/naive_rect_prism_fitting.h>
+#include <orol/fitting/mcmc_rect_prism_fitting.h>
 #include <orol/visual/viewer.h>
 #include <iostream>
 
@@ -109,17 +109,16 @@ class fitterViewer
       v->setScale("cube_0", shape->getWidth()(0)/2, shape->getWidth()(1)/2, shape->getWidth()(2)/2);
     }
     
-    void run(pcl::PointCloud<PointT>::Ptr cloud)
+    void run(int argc, char* argv[], pcl::PointCloud<PointT>::Ptr cloud)
     {
-       QApplication app(0,NULL);
+       QApplication app(argc, argv);
        
        boost::shared_ptr<Viewer> v_local(new Viewer("cubeCloud.xml"));
        v=v_local;
        v->setPointCloud(cloud);
       
-       
-  boost::shared_ptr<RectPrism> shape(new RectPrism());
-       naiveRectangularPrismFitting* fitter = new naiveRectangularPrismFitting( cloud );
+       boost::shared_ptr<RectPrism> shape(new RectPrism());
+       mcmcRectangularPrismFitting* fitter = new mcmcRectangularPrismFitting( cloud, QVec::vec3(5,5,5), QVec::vec3(5,5,5), QVec::vec3(0.1,0.1,0.1));
 
        boost::function<void (const boost::shared_ptr<RectPrism>&)> f =
          boost::bind (&fitterViewer::fit_cb, this, _1);
@@ -143,6 +142,6 @@ int main (int argc, char* argv[])
   //create fitter
   fitterViewer f;
   
-  f.run(cloud2fit);
+  f.run(argc, argv, cloud2fit);
   
 }
