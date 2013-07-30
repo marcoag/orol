@@ -46,15 +46,15 @@ void naiveRectangularPrismFitting::initRectangularPrism ()
   //shape2Fit->setWidth(QVec::vec3((eigen_values(0)/ratio),(eigen_values(0)/ratio),(eigen_values(0)/ratio)));
 
 //   shape2Fit->setCenter(QVec::vec3(440,0,0));
-  shape2Fit->setWidth(QVec::vec3(100,100,10));
-  shape2Fit->setRotation(QVec::vec3(0,0,0));
+  shape2Fit->setWidth(QVec::vec3(100,100,400));
+  shape2Fit->setRotation(QVec::vec3(-3.14,0,0));
 }
 
 void naiveRectangularPrismFitting::inc()
 {
-  int index=2;
+  int index=0;
   QVec auxvec = shape2Fit->getWidth();
-  float inc = 2;
+  float inc = 1;
   
   //decide direction
   auxvec(index)=auxvec(index)+inc;
@@ -66,20 +66,49 @@ void naiveRectangularPrismFitting::inc()
 
 void naiveRectangularPrismFitting::captureThreadFunction ()
 {
+  int numiteraciones=0;
+  float inc=-2.6;
+  float totaliteraciones;
   while (true)
   {
-
+    
     // Lock before checking running flag
     boost::unique_lock<boost::mutex> capture_lock (capture_mutex);
     if(running)
     {
-      //adapt ();
-      inc();
-      // Check for shape slots
-      if (num_slots<sig_cb_fitting_addapt> () > 0 )
-        fitting_signal->operator() (getRectangularPrism ());
-      
-    } 
+      while(inc!=0)
+      {
+	  //las 100 pruebas para hacer media
+	  for (int i=0;i<1;i++)
+	  {
+	    while (weight>0.5)
+	    {
+	      //cout<<"numiteraciones: "<<numiteraciones<<"w: "<<weight<<endl;
+	      adapt ();
+	      numiteraciones++;
+			      // Check for shape slots
+		if (num_slots<sig_cb_fitting_addapt> () > 0 )
+		  fitting_signal->operator() (getRectangularPrism ());
+	    }
+	    
+	    totaliteraciones+=numiteraciones;  
+	    
+	    shape2Fit->setRotation(QVec::vec3(inc,0,0));
+	    computeWeight();
+	    cout<<i<<": "<<numiteraciones<<endl;
+	    numiteraciones=0;
+	  }
+	  //media y cambio de tercio
+	  inc=inc+0.02;
+	  cout<<"inc"<<inc<<endl;
+	  initRectangularPrism ();
+	  shape2Fit->setRotation(QVec::vec3(inc,0,0));
+	  
+	  cout<<totaliteraciones/100.f<<",";
+	  totaliteraciones=0;
+      }
+    }  
+
     capture_lock.unlock ();
   }
 }
