@@ -42,12 +42,26 @@ void naiveRectangularPrismFitting::initRectangularPrism ()
   
   //set initial values for the rectangular prism
   shape2Fit->setCenter(QVec::vec3(centroid(0), centroid(1), centroid(2)));
-  shape2Fit->setWidth(QVec::vec3((eigen_values(0)/ratio),(eigen_values(0)/ratio),(eigen_values(0)/ratio)));
+  //shape2Fit->setWidth(QVec::vec3((eigen_values(0)/ratio),(eigen_values(0)/ratio),(eigen_values(0)/ratio)));
 
 //   shape2Fit->setCenter(QVec::vec3(440,0,0));
-//   shape2Fit->setWidth(QVec::vec3(100,100,400));
+  shape2Fit->setWidth(QVec::vec3(100,100,10));
   shape2Fit->setRotation(QVec::vec3(0,0,0));
 }
+
+void naiveRectangularPrismFitting::inc()
+{
+  int index=2;
+  QVec auxvec = shape2Fit->getWidth();
+  float inc = 2;
+  
+  //decide direction
+  auxvec(index)=auxvec(index)+inc;
+  shape2Fit->setWidth(auxvec);
+  computeWeight();
+  cout<<weight<<",";
+}
+
 
 void naiveRectangularPrismFitting::captureThreadFunction ()
 {
@@ -58,7 +72,8 @@ void naiveRectangularPrismFitting::captureThreadFunction ()
     boost::unique_lock<boost::mutex> capture_lock (capture_mutex);
     if(running)
     {
-      adapt ();
+      //adapt ();
+      inc();
       // Check for shape slots
       if (num_slots<sig_cb_fitting_addapt> () > 0 )
         fitting_signal->operator() (getRectangularPrism ());

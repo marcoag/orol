@@ -30,6 +30,8 @@ class naiveRectangularPrismFitting: public fitting
   
 public:
   naiveRectangularPrismFitting ( pcl::PointCloud<PointT>::Ptr cloud );
+    ///to be removed:
+  void inc();
   //Get and set cloud
   inline void setCloud (pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud) { cout<<"setcloud"<<endl; pointCloud2Fit=cloud; }
   inline pcl::PointCloud<pcl::PointXYZRGBA>::Ptr getCloud () { return pointCloud2Fit; }
