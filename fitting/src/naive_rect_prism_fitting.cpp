@@ -67,8 +67,10 @@ void naiveRectangularPrismFitting::inc()
 void naiveRectangularPrismFitting::captureThreadFunction ()
 {
   int numiteraciones=0;
-  float inc=-2.6;
+  float inc=-3.14;
   float totaliteraciones;
+   shape2Fit->setRotation(QVec::vec3(inc,0,0));
+   computeWeight();
   while (true)
   {
     
@@ -76,12 +78,12 @@ void naiveRectangularPrismFitting::captureThreadFunction ()
     boost::unique_lock<boost::mutex> capture_lock (capture_mutex);
     if(running)
     {
-      while(inc!=0)
+      while(inc<0)
       {
 	  //las 100 pruebas para hacer media
-	  for (int i=0;i<1;i++)
+	  for (int i=0;i<100;i++)
 	  {
-	    while (weight>0.5)
+	    while (weight>0.8 && numiteraciones<200)
 	    {
 	      //cout<<"numiteraciones: "<<numiteraciones<<"w: "<<weight<<endl;
 	      adapt ();
@@ -95,18 +97,22 @@ void naiveRectangularPrismFitting::captureThreadFunction ()
 	    
 	    shape2Fit->setRotation(QVec::vec3(inc,0,0));
 	    computeWeight();
-	    cout<<i<<": "<<numiteraciones<<endl;
+	    //cout<<i<<": "<<numiteraciones<<endl;
 	    numiteraciones=0;
 	  }
-	  //media y cambio de tercio
-	  inc=inc+0.02;
-	  cout<<"inc"<<inc<<endl;
-	  initRectangularPrism ();
-	  shape2Fit->setRotation(QVec::vec3(inc,0,0));
+	  //media y cambio de tercio	
+	  float result=totaliteraciones/100.0;	  
+	  //cout<<"Rotation: "<<inc<<endl;
+	  cout<<result<<",";
+	  cout.flush();
 	  
-	  cout<<totaliteraciones/100.f<<",";
+	  initRectangularPrism ();
+	  inc=inc+0.02;
+	  shape2Fit->setRotation(QVec::vec3(inc,0,0));
+
 	  totaliteraciones=0;
       }
+      cout<<endl;
     }  
 
     capture_lock.unlock ();
