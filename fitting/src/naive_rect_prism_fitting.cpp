@@ -10,7 +10,9 @@ naiveRectangularPrismFitting::naiveRectangularPrismFitting( pcl::PointCloud<Poin
   
   //initialize Rectangular prism to cloud
   initRectangularPrism();
+  myfile.open("output.txt");
 }
+
 
 void naiveRectangularPrismFitting::initRectangularPrism ()
 {
@@ -47,7 +49,7 @@ void naiveRectangularPrismFitting::initRectangularPrism ()
 
 //   shape2Fit->setCenter(QVec::vec3(440,0,0));
   shape2Fit->setWidth(QVec::vec3(100,100,400));
-  shape2Fit->setRotation(QVec::vec3(-3.14,0,0));
+  shape2Fit->setRotation(QVec::vec3(0,0,-3.14));
 }
 
 void naiveRectangularPrismFitting::inc()
@@ -69,8 +71,8 @@ void naiveRectangularPrismFitting::captureThreadFunction ()
   int numiteraciones=0;
   float inc=-3.14;
   float totaliteraciones;
-   shape2Fit->setRotation(QVec::vec3(inc,0,0));
-   computeWeight();
+  shape2Fit->setRotation(QVec::vec3(0,0,inc));
+  computeWeight();
   while (true)
   {
     
@@ -78,7 +80,7 @@ void naiveRectangularPrismFitting::captureThreadFunction ()
     boost::unique_lock<boost::mutex> capture_lock (capture_mutex);
     if(running)
     {
-      while(inc<0)
+      while(inc<3.15)
       {
 	  //las 100 pruebas para hacer media
 	  for (int i=0;i<100;i++)
@@ -95,7 +97,7 @@ void naiveRectangularPrismFitting::captureThreadFunction ()
 	    
 	    totaliteraciones+=numiteraciones;  
 	    
-	    shape2Fit->setRotation(QVec::vec3(inc,0,0));
+	    shape2Fit->setRotation(QVec::vec3(0,0,inc));
 	    computeWeight();
 	    //cout<<i<<": "<<numiteraciones<<endl;
 	    numiteraciones=0;
@@ -105,13 +107,15 @@ void naiveRectangularPrismFitting::captureThreadFunction ()
 	  //cout<<"Rotation: "<<inc<<endl;
 	  cout<<result<<",";
 	  cout.flush();
+    myfile << result <<",";
 	  
 	  initRectangularPrism ();
 	  inc=inc+0.02;
-	  shape2Fit->setRotation(QVec::vec3(inc,0,0));
+	  shape2Fit->setRotation(QVec::vec3(0,0,inc));
 
 	  totaliteraciones=0;
       }
+      myfile.close();
       cout<<endl;
     }  
 

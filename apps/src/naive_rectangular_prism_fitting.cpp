@@ -105,17 +105,17 @@ class fitterViewer
     
     void fit_cb (const boost::shared_ptr<RectPrism>  &shape)
     {
-      v->setPose("cube_0_t", shape->getCenter(), shape->getRotation(), shape->getWidth() );
-      v->setScale("cube_0", shape->getWidth()(0)/2, shape->getWidth()(1)/2, shape->getWidth()(2)/2);
+   //   v->setPose("cube_0_t", shape->getCenter(), shape->getRotation(), shape->getWidth() );
+   //   v->setScale("cube_0", shape->getWidth()(0)/2, shape->getWidth()(1)/2, shape->getWidth()(2)/2);
     }
     
     void run(int argc, char* argv[],pcl::PointCloud<PointT>::Ptr cloud)
     {
-       QApplication app(argc, argv);
+      // QApplication app(argc, argv);
        
-       boost::shared_ptr<Viewer> v_local(new Viewer("cubeCloud.xml"));
-       v=v_local;
-       v->setPointCloud(cloud);
+   //    boost::shared_ptr<Viewer> v_local(new Viewer("cubeCloud.xml"));
+  //     v=v_local;
+  //     v->setPointCloud(cloud);
       
        boost::shared_ptr<RectPrism> shape(new RectPrism());
        naiveRectangularPrismFitting* fitter = new naiveRectangularPrismFitting( cloud );
@@ -127,7 +127,9 @@ class fitterViewer
 
        fitter->start ();
 
-       app.exec();
+       while(true)
+        sleep(1);
+      // app.exec();
     }
     
     boost::shared_ptr<Viewer> v; 

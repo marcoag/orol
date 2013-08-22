@@ -113,8 +113,8 @@ float mcmcRectangularPrismFitting::computeWeight()
 
 void mcmcRectangularPrismFitting::adapt()
 {
-  //MarkovChainStepOnAll();
-  MarkovChainStepOnOne();
+  MarkovChainStepOnAll();
+  //MarkovChainStepOnOne();
 
 }
 
@@ -232,7 +232,10 @@ void mcmcRectangularPrismFitting::MarkovChainStepOnOne()
   //ifnot get it with probability nextweight/weight
   else
   {
-    float probability=nextWeight/weight;
+    float probability=weight/nextWeight;
+    float probability2=nextWeight/weight;
+    cout<<"Probability1: "<<probability<<endl;
+    cout<<"Probability2: "<<probability2<<endl;
     if ( (((float) rand())/(float) RAND_MAX) < probability)
     {
       if(selection==0)

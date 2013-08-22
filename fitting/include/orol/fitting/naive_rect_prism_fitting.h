@@ -10,6 +10,8 @@
 #include <pcl/common/transforms.h>
 #include <pcl/features/normal_3d.h>
 
+#include <fstream>
+
 typedef pcl::PointXYZRGBA PointT;
 
 /** \brief Fitting for rectangular prism
@@ -27,6 +29,7 @@ class naiveRectangularPrismFitting: public fitting
   boost::thread captured_thread;
   mutable boost::mutex capture_mutex;
   boost::signals2::signal<sig_cb_fitting_addapt>* fitting_signal;
+  ofstream myfile;
   
 public:
   naiveRectangularPrismFitting ( pcl::PointCloud<PointT>::Ptr cloud );
