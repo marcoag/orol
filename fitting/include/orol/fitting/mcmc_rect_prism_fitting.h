@@ -10,12 +10,13 @@
 #include <pcl/common/transforms.h>
 #include <pcl/features/normal_3d.h>
 
-typedef pcl::PointXYZRGBA PointT;
-
 /** \brief Marcov Chain Montecarlo fitting for rectangular prism
   * \author Marco A. Gutierrez <marcog@unex.es>
   * \ingroup fitting
   */
+
+typedef pcl::PointXYZRGBA PointT;
+
 class mcmcRectangularPrismFitting: public fitting
 {
   // Define callback signature typedefs

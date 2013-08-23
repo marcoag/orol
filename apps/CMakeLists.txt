@@ -11,6 +11,9 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/include)
 OROL_ADD_EXECUTABLE(orol_naive_rectangular_prism_fitting ${SUBSYS_NAME} src/naive_rectangular_prism_fitting.cpp)
 target_link_libraries(orol_naive_rectangular_prism_fitting orol_shapes orol_fitting orol_visual)
 
+OROL_ADD_EXECUTABLE(orol_live_naive_rectangular_prism_fitting ${SUBSYS_NAME} src/live_naive_rectangular_prism_fitting.cpp)
+target_link_libraries(orol_live_naive_rectangular_prism_fitting orol_shapes orol_fitting orol_visual)
+
 OROL_ADD_EXECUTABLE(orol_mcmc_rectangular_prism_fitting ${SUBSYS_NAME} src/mcmc_rectangular_prism_fitting.cpp)
 target_link_libraries(orol_mcmc_rectangular_prism_fitting orol_shapes orol_fitting orol_visual)
 

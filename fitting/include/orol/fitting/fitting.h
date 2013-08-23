@@ -7,6 +7,7 @@
   * \author Marco A. Gutierrez <marcog@unex.es>
   * \ingroup fitting
   */
+
 class fitting
 {
   
