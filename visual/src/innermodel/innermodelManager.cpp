@@ -17,15 +17,15 @@ void InnerModelManager::setPointCloudData(const std::string id, pcl::PointCloud<
   int points = cloud->size();
   pcNode->points->resize(points);
   pcNode->colors->resize(points);
-  pcNode->setPointSize(4);
+  pcNode->setPointSize(1);
   int i = 0;
   for(pcl::PointCloud<pcl::PointXYZRGBA>::iterator it = cloud->begin(); it != cloud->end(); it++ )
   {
     if (!pcl_isnan(it->x)&&!pcl_isnan(it->y)&&!pcl_isnan(it->z))
     {
-      pcNode->points->operator[](i) = QVecToOSGVec(QVec::vec3(it->x, it->y, it->z));
-      //pcNode->colors->operator[](i) = osg::Vec4f(float(it->r)/255, float(it->g)/255, float(it->b)/255, 1.f);
-      pcNode->colors->operator[](i) = osg::Vec4f(255.f, 0.f, 0.f, 1.f);
+      pcNode->points->operator[](i) = QVecToOSGVec(QVec::vec3(-it->x*1000, -it->y*1000, it->z*1000));
+      pcNode->colors->operator[](i) = osg::Vec4f(float(it->r)/255, float(it->g)/255, float(it->b)/255, 1.f);
+      //pcNode->colors->operator[](i) = osg::Vec4f(255.f, 0.f, 0.f, 1.f);
     }
     //std::cout<<i<<": "<<it->x<<" "<<it->y<<" "<<it->z<<std::endl;
     //std::cout<<i<<": "<<uint(it->r)<<" "<<uint(it->g)<<" "<<uint(it->b)<<std::endl;

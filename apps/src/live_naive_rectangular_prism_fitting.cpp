@@ -99,10 +99,28 @@ void moveACloud(pcl::PointCloud<PointT>::Ptr cloud2move, float X, float Y, float
   pcl::transformPointCloud(*cloud2move,*cloud2move,TransMat );
 }
 
+// // void translateClouds(pcl::PointCloud<PointT>::Ptr c_dest, 
+// //                      const pcl::PointCloud<PointT>::ConstPtr &c_org )
+// // {
+// //   for(pcl::PointCloud<PointT>::iterator it = c_org->begin(); it != c_org->end(); it++)
+// //   {
+// //     PointXYZRGBA p;
+// //     p->x=it->x*1000;
+// //     p->y=it->y*1000;
+// //     p->z=it->z*1000;
+// //     p->r=it->r/255;
+// //     p->g=it->g/255;
+// //     p->b=it->b/255;
+// //     c_dest->push_back(p);
+// //   }
+// // }
+
 class fitterViewer
 {
   public:
-    inline fitterViewer() {}
+    fitterViewer():v(new Viewer("cubeCloud.xml"))
+    ,cloud_buff(new pcl::PointCloud<pcl::PointXYZRGBA>)
+    {}
     
     void fit_cb (const boost::shared_ptr<RectPrism>  &shape)
     {
@@ -112,18 +130,22 @@ class fitterViewer
     
     void cloud_cb (const pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr &cloud)
     {
-      const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr c;
-      *c=*cloud;
-      v->setPointCloud(c);
+      
+      cloud_mutex.lock();      
+      //translateClouds(cloud_buff, cloud);
+      *cloud_buff=*cloud;
+      v->setPointCloud(cloud_buff);
+      
+      cloud_mutex.unlock();
+      
     }
     
-    void run(int argc, char* argv[],pcl::PointCloud<PointT>::Ptr cloud)
+    void run(pcl::PointCloud<PointT>::Ptr cloud)
     {
-       QApplication app(argc, argv);
+
        
-       boost::shared_ptr<Viewer> v_local(new Viewer("cubeCloud.xml"));
-       v=v_local;
-       v->setPointCloud(cloud);
+//        boost::shared_ptr<Viewer> v_local(new Viewer("cubeCloud.xml"));
+//        v=v_local;
       
        boost::shared_ptr<RectPrism> shape(new RectPrism());
        naiveRectangularPrismFitting* fitter = new naiveRectangularPrismFitting( cloud );
@@ -141,25 +163,29 @@ class fitterViewer
        boost::function<void (const pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr&)> f_kinect =
          boost::bind (&fitterViewer::cloud_cb, this, _1);
          
-       interface->registerCallback(f_kinect);
-       
-       interface->start ();
+      interface->registerCallback(f_kinect);
 
-       app.exec();
+      interface->start ();
+
     }
     
-    boost::shared_ptr<Viewer> v; 
+    boost::shared_ptr<Viewer> v;
+    QMutex cloud_mutex;
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_buff;
     
 };
 
   
 int main (int argc, char* argv[])
 { 
+  
+  QApplication app(argc, argv);
   //Create sintetic cube
   pcl::PointCloud<PointT>::Ptr cloud2fit = sinteticCubeCloud (100,100,400,50);
   //create fitter
   fitterViewer f;
   
-  f.run(argc, argv, cloud2fit);
+  f.run(cloud2fit);
   
+  app.exec();
 }
