@@ -6,6 +6,7 @@
 #include <pcl/point_types.h>
 #include <pcl/io/openni_grabber.h>
 #include <pcl/common/transforms.h>
+#include <pcl/filters/voxel_grid.h>
 
 typedef pcl::PointXYZRGBA PointT;
 
@@ -99,21 +100,26 @@ void moveACloud(pcl::PointCloud<PointT>::Ptr cloud2move, float X, float Y, float
   pcl::transformPointCloud(*cloud2move,*cloud2move,TransMat );
 }
 
-// // void translateClouds(pcl::PointCloud<PointT>::Ptr c_dest, 
-// //                      const pcl::PointCloud<PointT>::ConstPtr &c_org )
-// // {
-// //   for(pcl::PointCloud<PointT>::iterator it = c_org->begin(); it != c_org->end(); it++)
-// //   {
-// //     PointXYZRGBA p;
-// //     p->x=it->x*1000;
-// //     p->y=it->y*1000;
-// //     p->z=it->z*1000;
-// //     p->r=it->r/255;
-// //     p->g=it->g/255;
-// //     p->b=it->b/255;
-// //     c_dest->push_back(p);
-// //   }
-// // }
+void translateClouds(pcl::PointCloud<PointT>::Ptr c_dest, 
+                     const pcl::PointCloud<PointT>::ConstPtr &c_org )
+{
+  c_dest->clear();
+  for(pcl::PointCloud<PointT>::const_iterator it = c_org->begin(); it != c_org->end(); it++)
+  {
+    pcl::PointXYZRGBA p;
+    p.x=-it->x*1000;
+    p.y=-it->y*1000;
+    p.z=it->z*1000;
+    p.r=it->r;
+    p.g=it->g;
+    p.b=it->b;
+    c_dest->push_back(p);
+  }
+  pcl::VoxelGrid<PointT> sor;
+  sor.setInputCloud (c_dest);
+  sor.setLeafSize (0.01f, 0.01f, 0.01f);
+  sor.filter (*c_dest);
+}
 
 class fitterViewer
 {
@@ -132,9 +138,10 @@ class fitterViewer
     {
       
       cloud_mutex.lock();      
-      //translateClouds(cloud_buff, cloud);
-      *cloud_buff=*cloud;
+      translateClouds(cloud_buff, cloud);
+      //*cloud_buff=*cloud;
       v->setPointCloud(cloud_buff);
+ 
       
       cloud_mutex.unlock();
       
