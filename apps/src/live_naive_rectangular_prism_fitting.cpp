@@ -104,6 +104,8 @@ void translateClouds(pcl::PointCloud<PointT>::Ptr c_dest,
                      const pcl::PointCloud<PointT>::ConstPtr &c_org )
 {
   c_dest->clear();
+  
+  pcl::PointCloud<PointT>::Ptr cloud_clean (new pcl::PointCloud<PointT>);
   for(pcl::PointCloud<PointT>::const_iterator it = c_org->begin(); it != c_org->end(); it++)
   {
     pcl::PointXYZRGBA p;
@@ -113,10 +115,10 @@ void translateClouds(pcl::PointCloud<PointT>::Ptr c_dest,
     p.r=it->r;
     p.g=it->g;
     p.b=it->b;
-    c_dest->push_back(p);
+    cloud_clean->push_back(p);
   }
   pcl::VoxelGrid<PointT> sor;
-  sor.setInputCloud (c_dest);
+  sor.setInputCloud (cloud_clean);
   sor.setLeafSize (0.01f, 0.01f, 0.01f);
   sor.filter (*c_dest);
 }
