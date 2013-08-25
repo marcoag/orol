@@ -10,6 +10,27 @@ naiveRectangularPrismFitting::naiveRectangularPrismFitting( pcl::PointCloud<Poin
   
   //initialize Rectangular prism to cloud
   initRectangularPrism();
+ 
+  //initialize DimensionChanged
+  initDimensionChanged();
+}
+
+void naiveRectangularPrismFitting::initDimensionChanged()
+{
+  for(int i=0; i<9; i++)
+  {
+    dimensionChanged[i]=true;
+  }
+}
+
+bool naiveRectangularPrismFitting::notAnyDimensionChanged()
+{
+  for(int i=0; i<9; i++)
+  {
+    if(dimensionChanged[i])
+      return false;
+  }
+  return true;
 }
 
 void naiveRectangularPrismFitting::initRectangularPrism ()
@@ -64,7 +85,14 @@ void naiveRectangularPrismFitting::captureThreadFunction ()
       if (num_slots<sig_cb_fitting_addapt> () > 0 )
         fitting_signal->operator() (getRectangularPrism ());
       
-    } 
+      if(notAnyDimensionChanged() && weight > 0.1)
+      {
+        cout<<"RESET"<<endl;
+        initRectangularPrism();
+        initDimensionChanged();
+      }
+      
+    }
     capture_lock.unlock ();
   }
 }
@@ -182,7 +210,10 @@ void naiveRectangularPrismFitting::incTranslation(int index)
   else
     transformedWeight=positiveWeight;
     
-
+  if(transformedWeight<weight)
+    dimensionChanged[index]=true;
+  else
+    dimensionChanged[index]=false;
   
   //cout<<"Transformed: "<<transformedWeight<<" weight: "<<weight<<endl;
   while(transformedWeight<weight)
@@ -239,6 +270,11 @@ void naiveRectangularPrismFitting::incRotation(int index)
   else
     transformedWeight=positiveWeight;
     
+  if(transformedWeight<weight)
+    dimensionChanged[index+3]=true;
+  else
+    dimensionChanged[index+3]=false;
+  
   while(transformedWeight<weight)
   {
     auxvec(index)=auxvec(index)+inc;
@@ -290,6 +326,11 @@ void naiveRectangularPrismFitting::incWidth(int index)
   else
     transformedWeight=positiveWeight;
     
+  if(transformedWeight<weight)
+    dimensionChanged[index+6]=true;
+  else
+    dimensionChanged[index+6]=false;
+  
   while(transformedWeight<weight)
   {
     auxvec(index)=auxvec(index)+inc;

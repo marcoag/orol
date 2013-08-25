@@ -7,6 +7,7 @@
 #include <pcl/io/openni_grabber.h>
 #include <pcl/common/transforms.h>
 #include <pcl/filters/voxel_grid.h>
+#include <pcl/keypoints/uniform_sampling.h>
 
 typedef pcl::PointXYZRGBA PointT;
 
@@ -115,12 +116,21 @@ void translateClouds(pcl::PointCloud<PointT>::Ptr c_dest,
     p.r=it->r;
     p.g=it->g;
     p.b=it->b;
-    cloud_clean->push_back(p);
+    c_dest->push_back(p);
   }
-  pcl::VoxelGrid<PointT> sor;
-  sor.setInputCloud (cloud_clean);
-  sor.setLeafSize (0.01f, 0.01f, 0.01f);
-  sor.filter (*c_dest);
+  
+  //for some reason voxelgrid leaves a bunch of dirt
+//   pcl::VoxelGrid<PointT> sor;
+//   sor.setInputCloud (cloud_clean);
+//   sor.setLeafSize (0.01f, 0.01f, 0.01f);
+//   sor.filter (*c_dest);
+  
+  pcl::PointCloud<int> sampled_indices;
+  pcl::UniformSampling<PointT> uniform_sampling;
+  uniform_sampling.setInputCloud (c_dest);
+  uniform_sampling.setRadiusSearch (0.01f);
+  uniform_sampling.compute (sampled_indices);
+  pcl::copyPointCloud (*c_dest, sampled_indices.points, *c_dest);
 }
 
 class fitterViewer
@@ -138,15 +148,10 @@ class fitterViewer
     
     void cloud_cb (const pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr &cloud)
     {
-      
-      cloud_mutex.lock();      
+      cloud_mutex.lock();
       translateClouds(cloud_buff, cloud);
-      //*cloud_buff=*cloud;
       v->setPointCloud(cloud_buff);
- 
-      
       cloud_mutex.unlock();
-      
     }
     
     void run(pcl::PointCloud<PointT>::Ptr cloud)

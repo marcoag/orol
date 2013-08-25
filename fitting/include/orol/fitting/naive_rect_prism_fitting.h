@@ -28,9 +28,15 @@ class naiveRectangularPrismFitting: public fitting
   boost::thread captured_thread;
   mutable boost::mutex capture_mutex;
   boost::signals2::signal<sig_cb_fitting_addapt>* fitting_signal;
+  bool dimensionChanged[9];
   
 public:
   naiveRectangularPrismFitting ( pcl::PointCloud<PointT>::Ptr cloud );
+  
+  //For dimension changing checking
+  void initDimensionChanged();
+  bool notAnyDimensionChanged();
+  
   //Get and set cloud
   inline void setCloud (pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud) { cout<<"setcloud"<<endl; pointCloud2Fit=cloud; }
   inline pcl::PointCloud<pcl::PointXYZRGBA>::Ptr getCloud () { return pointCloud2Fit; }
