@@ -6,8 +6,14 @@
 #include <pcl/point_types.h>
 #include <pcl/io/openni_grabber.h>
 #include <pcl/common/transforms.h>
-#include <pcl/filters/voxel_grid.h>
 #include <pcl/keypoints/uniform_sampling.h>
+#include <pcl/filters/extract_indices.h>
+#include <pcl/sample_consensus/method_types.h>
+#include <pcl/sample_consensus/model_types.h>
+#include <pcl/segmentation/sac_segmentation.h>
+#include <pcl/sample_consensus/sac_model_plane.h>
+#include <pcl/sample_consensus/ransac.h>
+#include <pcl/segmentation/extract_clusters.h>
 
 typedef pcl::PointXYZRGBA PointT;
 
@@ -104,10 +110,54 @@ void moveACloud(pcl::PointCloud<PointT>::Ptr cloud2move, float X, float Y, float
 void translateClouds(pcl::PointCloud<PointT>::Ptr c_dest, 
                      const pcl::PointCloud<PointT>::ConstPtr &c_org )
 {
-  c_dest->clear();
-  
   pcl::PointCloud<PointT>::Ptr cloud_clean (new pcl::PointCloud<PointT>);
-  for(pcl::PointCloud<PointT>::const_iterator it = c_org->begin(); it != c_org->end(); it++)
+  pcl::PointCloud<int> sampled_indices;
+  pcl::UniformSampling<PointT> uniform_sampling;
+  uniform_sampling.setInputCloud (c_org);
+  uniform_sampling.setRadiusSearch (0.01f);
+  uniform_sampling.compute (sampled_indices);
+  pcl::copyPointCloud (*c_org, sampled_indices.points, *cloud_clean);
+  
+  
+  pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
+  
+  pcl::SampleConsensusModelPlane<PointT>::Ptr
+    model_s(new pcl::SampleConsensusModelPlane<PointT> (cloud_clean));
+  //Ransac
+  pcl::RandomSampleConsensus<PointT> ransac (model_s);
+  ransac.setDistanceThreshold (0.05);
+  ransac.computeModel();
+  ransac.getInliers(inliers->indices);
+  
+  pcl::ExtractIndices<PointT> extract;
+  extract.setInputCloud (cloud_clean);
+  extract.setIndices (inliers);
+  extract.setNegative (true);
+  extract.filter(*cloud_clean);
+  std::vector< int > nanindexes;
+  pcl::removeNaNFromPointCloud(*cloud_clean,*cloud_clean,nanindexes);
+  
+      //cluster extraction
+  pcl::search::KdTree<PointT>::Ptr tree (new pcl::search::KdTree<PointT>);
+  tree->setInputCloud (cloud_clean);
+
+  std::vector<pcl::PointIndices> cluster_indices;
+  pcl::EuclideanClusterExtraction<PointT> ec;
+  ec.setClusterTolerance (0.1); 
+  ec.setMinClusterSize (30);
+  ec.setMaxClusterSize (25000);
+  ec.setSearchMethod (tree);
+  ec.setInputCloud (cloud_clean);
+  ec.extract (cluster_indices);
+  
+  //Get the biggest
+  pcl::PointCloud<PointT>::Ptr cloud_cluster (new pcl::PointCloud<PointT>);
+  for (std::vector<int>::const_iterator pit = cluster_indices.begin()->indices.begin (); pit != cluster_indices.begin()->indices.end (); pit++)
+    cloud_cluster->points.push_back (cloud_clean->points[*pit]);
+  
+  
+  c_dest->clear();
+  for(pcl::PointCloud<PointT>::const_iterator it = cloud_cluster->begin(); it != cloud_cluster->end(); it++)
   {
     pcl::PointXYZRGBA p;
     p.x=-it->x*1000;
@@ -118,19 +168,7 @@ void translateClouds(pcl::PointCloud<PointT>::Ptr c_dest,
     p.b=it->b;
     c_dest->push_back(p);
   }
-  
-  //for some reason voxelgrid leaves a bunch of dirt
-//   pcl::VoxelGrid<PointT> sor;
-//   sor.setInputCloud (cloud_clean);
-//   sor.setLeafSize (0.01f, 0.01f, 0.01f);
-//   sor.filter (*c_dest);
-  
-  pcl::PointCloud<int> sampled_indices;
-  pcl::UniformSampling<PointT> uniform_sampling;
-  uniform_sampling.setInputCloud (c_dest);
-  uniform_sampling.setRadiusSearch (0.01f);
-  uniform_sampling.compute (sampled_indices);
-  pcl::copyPointCloud (*c_dest, sampled_indices.points, *c_dest);
+
 }
 
 class fitterViewer
@@ -139,6 +177,12 @@ class fitterViewer
     fitterViewer():v(new Viewer("cubeCloud.xml"))
     ,cloud_buff(new pcl::PointCloud<pcl::PointXYZRGBA>)
     {}
+    
+    ~fitterViewer()
+    {
+      interface->stop();
+      fitter->stop();
+    }
     
     void fit_cb (const boost::shared_ptr<RectPrism>  &shape)
     {
@@ -156,13 +200,9 @@ class fitterViewer
     
     void run(pcl::PointCloud<PointT>::Ptr cloud)
     {
-
-       
-//        boost::shared_ptr<Viewer> v_local(new Viewer("cubeCloud.xml"));
-//        v=v_local;
       
        boost::shared_ptr<RectPrism> shape(new RectPrism());
-       naiveRectangularPrismFitting* fitter = new naiveRectangularPrismFitting( cloud );
+       fitter = new naiveRectangularPrismFitting( cloud );
 
        boost::function<void (const boost::shared_ptr<RectPrism>&)> f =
          boost::bind (&fitterViewer::fit_cb, this, _1);
@@ -172,7 +212,7 @@ class fitterViewer
        fitter->start ();
        
        //openni grabber:
-       pcl::Grabber* interface = new pcl::OpenNIGrabber();
+       interface = new pcl::OpenNIGrabber();
        
        boost::function<void (const pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr&)> f_kinect =
          boost::bind (&fitterViewer::cloud_cb, this, _1);
@@ -187,6 +227,8 @@ class fitterViewer
     QMutex cloud_mutex;
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_buff;
     
+    naiveRectangularPrismFitting* fitter;
+    pcl::Grabber* interface;
 };
 
   

@@ -38,7 +38,7 @@ public:
   bool notAnyDimensionChanged();
   
   //Get and set cloud
-  inline void setCloud (pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud) { cout<<"setcloud"<<endl; pointCloud2Fit=cloud; }
+  inline void setCloud (pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud) { pointCloud2Fit=cloud; }
   inline pcl::PointCloud<pcl::PointXYZRGBA>::Ptr getCloud () { return pointCloud2Fit; }
   //get and set rectangular prism
   inline void setRectangularPrism (boost::shared_ptr<RectPrism> shape) { shape2Fit=shape; }
