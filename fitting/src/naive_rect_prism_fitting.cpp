@@ -101,9 +101,9 @@ float naiveRectangularPrismFitting::computeWeight()
 {
   weight=0.;
   //estimate normals
-  pcl::NormalEstimation<pcl::PointXYZRGBA, pcl::Normal> ne;
+  pcl::NormalEstimation<PointT, pcl::Normal> ne;
   ne.setInputCloud (pointCloud2Fit);
-  pcl::search::KdTree<pcl::PointXYZRGBA>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGBA> ());
+  pcl::search::KdTree<PointT>::Ptr tree (new pcl::search::KdTree<PointT> ());
   ne.setSearchMethod (tree);
   // Output datasets
   pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>);
@@ -113,7 +113,7 @@ float naiveRectangularPrismFitting::computeWeight()
   ne.compute (*cloud_normals);
 
   int normalint =0;
-  for( pcl::PointCloud<pcl::PointXYZRGBA>::iterator it = pointCloud2Fit->begin(); it != pointCloud2Fit->end(); it++ )
+  for( pcl::PointCloud<PointT>::iterator it = pointCloud2Fit->begin(); it != pointCloud2Fit->end(); it++ )
   {
     
     QVec point = QVec::vec3(it->x, it->y, it->z);

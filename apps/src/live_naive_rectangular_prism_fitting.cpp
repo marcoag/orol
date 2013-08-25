@@ -27,7 +27,7 @@ pcl::PointCloud<PointT>::Ptr sinteticCubeCloud(int Wx, int Wy, int Wz, int res)
     for(float y=0; y<=Wx; y=y+res)
     {
       //face front (x=0)
-      pcl::PointXYZRGBA p;
+      PointT p;
       p.x = x;//+RectPrismCloudParticle::getRandom(10);
       p.y = y;//+RectPrismCloudParticle::getRandom(10);
       p.z = 0;//+RectPrismCloudParticle::getRandom(10);
@@ -51,7 +51,7 @@ pcl::PointCloud<PointT>::Ptr sinteticCubeCloud(int Wx, int Wy, int Wz, int res)
     for(float z=0; z<=Wz; z=z+res)
     {
       //face front (x=0)
-      pcl::PointXYZRGBA p;
+      PointT p;
       p.x = x;//+RectPrismCloudParticle::getRandom(10);
       p.y = 0;//+RectPrismCloudParticle::getRandom(10);
       p.z = z;//+RectPrismCloudParticle::getRandom(10);
@@ -75,7 +75,7 @@ pcl::PointCloud<PointT>::Ptr sinteticCubeCloud(int Wx, int Wy, int Wz, int res)
     for(float z=0; z<=Wz; z=z+res)
     {
       //face front (x=0)
-      pcl::PointXYZRGBA p;
+      PointT p;
       p.x = 0;//+RectPrismCloudParticle::getRandom(10);
       p.y = y;//+RectPrismCloudParticle::getRandom(10);
       p.z = z;//+RectPrismCloudParticle::getRandom(10);
@@ -159,7 +159,7 @@ void translateClouds(pcl::PointCloud<PointT>::Ptr c_dest,
   c_dest->clear();
   for(pcl::PointCloud<PointT>::const_iterator it = cloud_cluster->begin(); it != cloud_cluster->end(); it++)
   {
-    pcl::PointXYZRGBA p;
+    PointT p;
     p.x=-it->x*1000;
     p.y=-it->y*1000;
     p.z=it->z*1000;
@@ -175,7 +175,8 @@ class fitterViewer
 {
   public:
     fitterViewer():v(new Viewer("cubeCloud.xml"))
-    ,cloud_buff(new pcl::PointCloud<pcl::PointXYZRGBA>)
+    ,cloud_buff(new pcl::PointCloud<PointT>)
+    ,new_cloud_available_flag(false)
     {}
     
     ~fitterViewer()
@@ -188,13 +189,20 @@ class fitterViewer
     {
       v->setPose("cube_0_t", shape->getCenter(), shape->getRotation(), shape->getWidth() );
       v->setScale("cube_0", shape->getWidth()(0)/2, shape->getWidth()(1)/2, shape->getWidth()(2)/2);
+      if(new_cloud_available_flag)
+      {
+	fitter->setCloud(cloud_buff);
+	new_cloud_available_flag=false;
+      }
+      
     }
     
-    void cloud_cb (const pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr &cloud)
+    void cloud_cb (const pcl::PointCloud<PointT>::ConstPtr &cloud)
     {
       cloud_mutex.lock();
       translateClouds(cloud_buff, cloud);
       v->setPointCloud(cloud_buff);
+      new_cloud_available_flag=true;
       cloud_mutex.unlock();
     }
     
@@ -202,33 +210,41 @@ class fitterViewer
     {
       
        boost::shared_ptr<RectPrism> shape(new RectPrism());
-       fitter = new naiveRectangularPrismFitting( cloud );
-
-       boost::function<void (const boost::shared_ptr<RectPrism>&)> f =
-         boost::bind (&fitterViewer::fit_cb, this, _1);
-
-       fitter->registerCallback (f);
-
-       fitter->start ();
-       
        //openni grabber:
        interface = new pcl::OpenNIGrabber();
        
-       boost::function<void (const pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr&)> f_kinect =
+       boost::function<void (const pcl::PointCloud<PointT>::ConstPtr&)> f_kinect =
          boost::bind (&fitterViewer::cloud_cb, this, _1);
          
       interface->registerCallback(f_kinect);
 
       interface->start ();
+      
+      // Wait for the first frame:
+      while(!new_cloud_available_flag) 
+	boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+      new_cloud_available_flag = false;
+      
+      fitter = new naiveRectangularPrismFitting( cloud_buff );
+
+      boost::function<void (const boost::shared_ptr<RectPrism>&)> f =
+         boost::bind (&fitterViewer::fit_cb, this, _1);
+
+      fitter->registerCallback (f);
+
+      fitter->start ();
+       
 
     }
     
     boost::shared_ptr<Viewer> v;
     QMutex cloud_mutex;
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_buff;
+    pcl::PointCloud<PointT>::Ptr cloud_buff;
     
     naiveRectangularPrismFitting* fitter;
     pcl::Grabber* interface;
+    
+    bool new_cloud_available_flag;
 };
 
   
