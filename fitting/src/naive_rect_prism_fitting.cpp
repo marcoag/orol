@@ -2,7 +2,10 @@
 
 naiveRectangularPrismFitting::naiveRectangularPrismFitting( pcl::PointCloud<PointT>::Ptr cloud )
 : shape2Fit(new RectPrism())
+, bestFit(new RectPrism())
 {  
+  bestweight=999999;
+  
   pointCloud2Fit=cloud; 
   
   captured_thread = boost::thread (&naiveRectangularPrismFitting::captureThreadFunction, this);
@@ -56,19 +59,24 @@ void naiveRectangularPrismFitting::initRectangularPrism ()
     max_eigenvalue=eigen_values(2);
   for (pcl::PointCloud<pcl::PointXYZRGBA>::iterator it = pointCloud2Fit->points.begin (); it < pointCloud2Fit->points.end (); ++it)
   {
-    float distance=fabs(sqrt(pow((it->x)-centroid(0),2.0)+pow((it->y)-centroid(2),2.0)+pow((it->z)-centroid(1),2.0)));
+    float distance=fabs(sqrt(pow((it->x)-centroid(0),2.0)+pow((it->y)-centroid(1),2.0)+pow((it->z)-centroid(2),2.0)));
     if (max_distance<distance)
       max_distance=distance;
   }
   float ratio=max_eigenvalue/max_distance;
+  MAX_WIDTH=max_distance;
   
   //set initial values for the rectangular prism
   shape2Fit->setCenter(QVec::vec3(centroid(0), centroid(1), centroid(2)));
-  shape2Fit->setWidth(QVec::vec3((eigen_values(0)/ratio),(eigen_values(0)/ratio),(eigen_values(0)/ratio)));
+  shape2Fit->setWidth(QVec::vec3((eigen_values(0)/max_eigenvalue)*max_distance,(eigen_values(1)/max_eigenvalue)*max_distance,(eigen_values(2)/max_eigenvalue)*max_distance));
 
 //   shape2Fit->setCenter(QVec::vec3(440,0,0));
 //   shape2Fit->setWidth(QVec::vec3(100,100,400));
-  shape2Fit->setRotation(QVec::vec3(0,0,0));
+  
+  float rx = atan2(eigen_vectors(2,1), eigen_vectors(2,2));
+  float ry = atan2(-eigen_vectors(2,0),sqrt(pow(eigen_vectors(2,1),2)+pow(eigen_vectors(2,2),2)));
+  float rz = atan2(eigen_vectors(1,0),eigen_vectors(0,0));
+  shape2Fit->setRotation(QVec::vec3(rx,ry,rz));
 }
 
 void naiveRectangularPrismFitting::captureThreadFunction ()
@@ -101,28 +109,29 @@ float naiveRectangularPrismFitting::computeWeight()
 {
   weight=0.;
   //estimate normals
-  pcl::NormalEstimation<PointT, pcl::Normal> ne;
-  ne.setInputCloud (pointCloud2Fit);
-  pcl::search::KdTree<PointT>::Ptr tree (new pcl::search::KdTree<PointT> ());
-  ne.setSearchMethod (tree);
-  // Output datasets
-  pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>);
-  // Use all neighbors in a sphere of radius 3cm
-  ne.setRadiusSearch (5);
-  // Compute the features
-  ne.compute (*cloud_normals);
+//   pcl::NormalEstimation<PointT, pcl::Normal> ne;
+//   ne.setInputCloud (pointCloud2Fit);
+//   pcl::search::KdTree<PointT>::Ptr tree (new pcl::search::KdTree<PointT> ());
+//   ne.setSearchMethod (tree);
+//   // Output datasets
+//   pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>);
+//   // Use all neighbors in a sphere of radius 3cm
+//   ne.setRadiusSearch (5);
+//   // Compute the features
+//   ne.compute (*cloud_normals);
 
-  int normalint =0;
+  //int normalint =0;
   for( pcl::PointCloud<PointT>::iterator it = pointCloud2Fit->begin(); it != pointCloud2Fit->end(); it++ )
   {
     
     QVec point = QVec::vec3(it->x, it->y, it->z);
-    QVec normal = QVec::vec3( cloud_normals->points[normalint].normal_x,cloud_normals->points[normalint].normal_y, cloud_normals->points[normalint].normal_z);
+    //QVec normal = QVec::vec3( cloud_normals->points[normalint].normal_x,cloud_normals->points[normalint].normal_y, cloud_normals->points[normalint].normal_z);
 
 
-    double dist = shape2Fit->distance(point,normal);
+    //double dist = shape2Fit->distance(point,normal);
+    double dist = shape2Fit->distance(point);
     weight += dist*dist;
-    normalint++;
+    //normalint++;
   }
   
   weight /= pointCloud2Fit->points.size();
@@ -179,7 +188,7 @@ void naiveRectangularPrismFitting::incTranslation(int index)
   QVec auxvec;
   float positiveWeight, negativeWeight, transformedWeight;
   QVec width = shape2Fit->getWidth();
-  float inc = width(index)/40;
+  float inc = width(index)/10;
   auxvec = shape2Fit->getCenter();
   
   //decide direction
@@ -218,6 +227,7 @@ void naiveRectangularPrismFitting::incTranslation(int index)
   //cout<<"Transformed: "<<transformedWeight<<" weight: "<<weight<<endl;
   while(transformedWeight<weight)
   {
+//     cout<<"INCT: "<<inc<<endl;
     auxvec(index)=auxvec(index)+inc;
     shape2Fit->setCenter(auxvec);
     weight=transformedWeight;
@@ -232,6 +242,14 @@ void naiveRectangularPrismFitting::incTranslation(int index)
     auxvec(index)=auxvec(index)-inc;
     shape2Fit->setCenter(auxvec);
     computeWeight();
+  }
+  
+  if(weight<bestweight)
+  {
+    bestFit->setCenter(shape2Fit->getCenter());
+    bestFit->setRotation(shape2Fit->getRotation());
+    bestFit->setWidth(shape2Fit->getWidth());
+    bestweight=weight;
   }
 
 }
@@ -270,13 +288,14 @@ void naiveRectangularPrismFitting::incRotation(int index)
   else
     transformedWeight=positiveWeight;
     
-  if(transformedWeight<weight)
+  if(transformedWeight<weight && auxvec(index)+inc <= MAX_WIDTH)
     dimensionChanged[index+3]=true;
   else
     dimensionChanged[index+3]=false;
   
-  while(transformedWeight<weight)
+  while(transformedWeight<weight && auxvec(index)+inc <= MAX_WIDTH)
   {
+//     cout<<"INCR: "<<inc<<endl;
     auxvec(index)=auxvec(index)+inc;
     shape2Fit->setRotation(auxvec);
     weight=transformedWeight;
@@ -292,13 +311,21 @@ void naiveRectangularPrismFitting::incRotation(int index)
     shape2Fit->setRotation(auxvec);
     computeWeight();
   }
+  
+  if(weight<bestweight)
+  {
+    bestFit->setCenter(shape2Fit->getCenter());
+    bestFit->setRotation(shape2Fit->getRotation());
+    bestFit->setWidth(shape2Fit->getWidth());
+    bestweight=weight;
+  }
 }
 
 void naiveRectangularPrismFitting::incWidth(int index)
 {
   float positiveWeight, negativeWeight, transformedWeight;
   QVec auxvec = shape2Fit->getWidth();
-  float inc = auxvec(index)/40;
+  float inc = auxvec(index)/10;
   
   //decide direction
   auxvec(index)=auxvec(index)+inc;
@@ -333,6 +360,7 @@ void naiveRectangularPrismFitting::incWidth(int index)
   
   while(transformedWeight<weight)
   {
+//     cout<<"INCW: "<<inc<<endl;
     auxvec(index)=auxvec(index)+inc;
     shape2Fit->setWidth(auxvec);
     weight=transformedWeight;
@@ -347,5 +375,13 @@ void naiveRectangularPrismFitting::incWidth(int index)
     auxvec(index)=auxvec(index)-inc;
     shape2Fit->setWidth(auxvec);
     computeWeight();
+  }
+  
+  if(weight<bestweight)
+  {
+    bestFit->setCenter(shape2Fit->getCenter());
+    bestFit->setRotation(shape2Fit->getRotation());
+    bestFit->setWidth(shape2Fit->getWidth());
+    bestweight=weight;
   }
 }

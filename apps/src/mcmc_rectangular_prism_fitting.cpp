@@ -101,24 +101,25 @@ void moveACloud(pcl::PointCloud<PointT>::Ptr cloud2move, float X, float Y, float
 class fitterViewer
 {
   public:
-    inline fitterViewer() {}
+    fitterViewer()
+    :v(new Viewer("cubeCloud.xml"))
+    {}
     
     void fit_cb (const boost::shared_ptr<RectPrism>  &shape)
     {
       v->setPose("cube_0_t", shape->getCenter(), shape->getRotation(), shape->getWidth() );
       v->setScale("cube_0", shape->getWidth()(0)/2, shape->getWidth()(1)/2, shape->getWidth()(2)/2);
+      
+      v->setPose("cube_best_t", fitter->getBest()->getCenter(), fitter->getBest()->getRotation(), fitter->getBest()->getWidth() );
+      v->setScale("cube_best", fitter->getBest()->getWidth()(0)/2, fitter->getBest()->getWidth()(1)/2, fitter->getBest()->getWidth()(2)/2);
     }
     
     void run(int argc, char* argv[], pcl::PointCloud<PointT>::Ptr cloud)
     {
-       QApplication app(argc, argv);
-       
-       boost::shared_ptr<Viewer> v_local(new Viewer("cubeCloud.xml"));
-       v=v_local;
        v->setPointCloud(cloud);
       
        boost::shared_ptr<RectPrism> shape(new RectPrism());
-       mcmcRectangularPrismFitting* fitter = new mcmcRectangularPrismFitting( cloud, QVec::vec3(5,5,5), QVec::vec3(5,5,5), QVec::vec3(0.1,0.1,0.1));
+       fitter = new mcmcRectangularPrismFitting( cloud, QVec::vec3(0.1,0.1,0.1),QVec::vec3(20,20,20),QVec::vec3(0.5,0.5,0.5));
 
        boost::function<void (const boost::shared_ptr<RectPrism>&)> f =
          boost::bind (&fitterViewer::fit_cb, this, _1);
@@ -127,21 +128,30 @@ class fitterViewer
 
        fitter->start ();
 
-       app.exec();
     }
     
-    boost::shared_ptr<Viewer> v; 
+    boost::shared_ptr<Viewer> v;
+    mcmcRectangularPrismFitting* fitter;
+    
     
 };
 
   
 int main (int argc, char* argv[])
 { 
+  QApplication app(argc, argv);
+  
   //Create sintetic cube
-  pcl::PointCloud<PointT>::Ptr cloud2fit = sinteticCubeCloud (100,100,400,50);
+  //pcl::PointCloud<PointT>::Ptr cloud2fit = sinteticCubeCloud (100,100,400,50);
+  std::string filename="box_00.pcd";
+  pcl::PointCloud<PointT>::Ptr cloud2fit ( new pcl::PointCloud<PointT>());
+  pcl::io::loadPCDFile<PointT> ( filename, *cloud2fit);
+  
   //create fitter
   fitterViewer f;
   
   f.run(argc, argv, cloud2fit);
+  
+  app.exec();
   
 }

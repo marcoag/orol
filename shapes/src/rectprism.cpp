@@ -159,7 +159,7 @@ double RectPrism::getInternalDistance(const QVec point,const QVec normal)
     
 }
 
-double RectPrism::distance(const QVec &point,const QVec normal)
+double RectPrism::distance(const QVec &point)
 {
   QVec point2 = placePoint(point);
   //point.print("point");

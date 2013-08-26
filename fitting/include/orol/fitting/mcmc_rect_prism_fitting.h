@@ -43,7 +43,9 @@ public:
   inline pcl::PointCloud<pcl::PointXYZRGBA>::Ptr getCloud () { return pointCloud2Fit; }
   //get and set rectangular prism
   inline void setRectangularPrism (boost::shared_ptr<RectPrism> shape) { shape2Fit=shape; }
+  
   inline boost::shared_ptr<RectPrism> getRectangularPrism () { return shape2Fit; }
+  inline boost::shared_ptr<RectPrism> getBest () { return bestFit; }
   
   inline void setVarianceCenter (QVec varianceC) { this->varianceC=varianceC; }
   inline QVec getVarianceCenter () { return varianceC; }

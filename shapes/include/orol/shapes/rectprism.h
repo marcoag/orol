@@ -41,7 +41,7 @@ public:
   double getInternalDistance(const QVec point, const QVec normal);
   uint8_t collisionVector(const QVec &point);
   
-  double distance(const QVec &point, const QVec normal);
+  double distance(const QVec &point);
   
 private:
   void naiveIncRotation(int index);

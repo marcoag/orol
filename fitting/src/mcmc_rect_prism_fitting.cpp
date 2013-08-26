@@ -6,7 +6,7 @@ mcmcRectangularPrismFitting::mcmcRectangularPrismFitting( pcl::PointCloud<PointT
 { 
   //initialize weights
   weight=0;
-  bestweight=0;
+  bestweight=9999999;
   
   pointCloud2Fit=cloud; 
   
@@ -44,7 +44,7 @@ void mcmcRectangularPrismFitting::initRectangularPrism ()
     max_eigenvalue=eigen_values(2);
   for (pcl::PointCloud<pcl::PointXYZRGBA>::iterator it = pointCloud2Fit->points.begin (); it < pointCloud2Fit->points.end (); ++it)
   {
-    float distance=fabs(sqrt(pow((it->x)-centroid(0),2.0)+pow((it->y)-centroid(2),2.0)+pow((it->z)-centroid(1),2.0)));
+    float distance=fabs(sqrt(pow((it->x)-centroid(0),2.0)+pow((it->y)-centroid(1),2.0)+pow((it->z)-centroid(2),2.0)));
     if (max_distance<distance)
       max_distance=distance;
   }
@@ -52,11 +52,17 @@ void mcmcRectangularPrismFitting::initRectangularPrism ()
   
   //set initial values for the rectangular prism
   shape2Fit->setCenter(QVec::vec3(centroid(0), centroid(1), centroid(2)));
-  shape2Fit->setWidth(QVec::vec3((eigen_values(0)/ratio),(eigen_values(0)/ratio),(eigen_values(0)/ratio)));
+  shape2Fit->setWidth(QVec::vec3((eigen_values(0)/max_eigenvalue)*max_distance,(eigen_values(1)/max_eigenvalue)*max_distance,(eigen_values(2)/max_eigenvalue)*max_distance));
+  cout<<"MAx: "<<max_distance<<endl;
+  cout<<eigen_values(0)/max_eigenvalue<<" "<<eigen_values(1)/max_eigenvalue<< " "<<eigen_values(2)/max_eigenvalue<<endl;
 
 //   shape2Fit->setCenter(QVec::vec3(440,0,0));
-//   shape2Fit->setWidth(QVec::vec3(100,100,400));
-  shape2Fit->setRotation(QVec::vec3(0,0,0));
+//   shape2Fit->setWidth(QVec::vec3(10,10,10));
+  
+  float rx = atan2(eigen_vectors(2,1), eigen_vectors(2,2));
+  float ry = atan2(-eigen_vectors(2,0),sqrt(pow(eigen_vectors(2,1),2)+pow(eigen_vectors(2,2),2)));
+  float rz = atan2(eigen_vectors(1,0),eigen_vectors(0,0));
+  shape2Fit->setRotation(QVec::vec3(rx,ry,rz));
 }
 
 void mcmcRectangularPrismFitting::captureThreadFunction ()
@@ -82,28 +88,28 @@ float mcmcRectangularPrismFitting::computeWeight()
 {
   weight=0.;
   //estimate normals
-  pcl::NormalEstimation<pcl::PointXYZRGBA, pcl::Normal> ne;
-  ne.setInputCloud (pointCloud2Fit);
-  pcl::search::KdTree<pcl::PointXYZRGBA>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGBA> ());
-  ne.setSearchMethod (tree);
-  // Output datasets
-  pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>);
-  // Use all neighbors in a sphere of radius 3cm
-  ne.setRadiusSearch (5);
-  // Compute the features
-  ne.compute (*cloud_normals);
+//   pcl::NormalEstimation<pcl::PointXYZRGBA, pcl::Normal> ne;
+//   ne.setInputCloud (pointCloud2Fit);
+//   pcl::search::KdTree<pcl::PointXYZRGBA>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGBA> ());
+//   ne.setSearchMethod (tree);
+//   // Output datasets
+//   pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>);
+//   // Use all neighbors in a sphere of radius 3cm
+//   ne.setRadiusSearch (5);
+//   // Compute the features
+//   ne.compute (*cloud_normals);
 
   int normalint =0;
   for( pcl::PointCloud<pcl::PointXYZRGBA>::iterator it = pointCloud2Fit->begin(); it != pointCloud2Fit->end(); it++ )
   {
     
     QVec point = QVec::vec3(it->x, it->y, it->z);
-    QVec normal = QVec::vec3( cloud_normals->points[normalint].normal_x,cloud_normals->points[normalint].normal_y, cloud_normals->points[normalint].normal_z);
+    //QVec normal = QVec::vec3( cloud_normals->points[normalint].normal_x,cloud_normals->points[normalint].normal_y, cloud_normals->points[normalint].normal_z);
 
 
-    double dist = shape2Fit->distance(point,normal);
+    double dist = shape2Fit->distance(point);
     weight += dist*dist;
-    normalint++;
+    //normalint++;
   }
   
   weight /= pointCloud2Fit->points.size();
@@ -113,8 +119,13 @@ float mcmcRectangularPrismFitting::computeWeight()
 
 void mcmcRectangularPrismFitting::adapt()
 {
-  //MarkovChainStepOnAll();
-  MarkovChainStepOnOne();
+  MarkovChainStepOnAll();
+  //MarkovChainStepOnOne();
+  
+  float annealing = 1;
+  varianceC = varianceC.operator*(annealing);
+  varianceS = varianceS.operator*(annealing);
+  varianceR = varianceR.operator*(annealing);
 
 }
 
@@ -145,14 +156,14 @@ void mcmcRectangularPrismFitting::MarkovChainStepOnAll()
   computeWeight();
   
   //we get it for sure
-  if(nextWeight>weight)
+  if(nextWeight<weight)
   {
     shape2Fit->setCenter(QVec::vec3(translation(0)+translationInc(0),translation(1)+translationInc(1),translation(2)+translationInc(2)));
     shape2Fit->setRotation(QVec::vec3(rotation(0)+rotationInc(0),rotation(1)+rotationInc(1),rotation(2)+rotationInc(2)));
     shape2Fit->setWidth(QVec::vec3(width(0)+widthInc(0),width(1)+widthInc(1),width(2)+widthInc(2))); 
     computeWeight();
     //if better than best update best
-    if(weight>bestweight)
+    if(weight<bestweight)
     {
       bestFit->setCenter(shape2Fit->getCenter());
       bestFit->setRotation(shape2Fit->getRotation());
@@ -163,7 +174,8 @@ void mcmcRectangularPrismFitting::MarkovChainStepOnAll()
   //ifnot get it with probability nextweight/weight
   else
   {
-    float probability=nextWeight/weight;
+    //float probability=nextWeight/weight;
+    float probability=0.05;
     if ( (((float) rand())/(float) RAND_MAX) < probability)
     {
       shape2Fit->setCenter(QVec::vec3(translation(0)+translationInc(0),translation(1)+translationInc(1),translation(2)+translationInc(2)));
@@ -208,7 +220,7 @@ void mcmcRectangularPrismFitting::MarkovChainStepOnOne()
   computeWeight();
 
   //we get it for sure
-  if(nextWeight>weight)
+  if(nextWeight<weight)
   {
     if(selection==0)
       shape2Fit->setCenter(translation+translationInc);
@@ -218,7 +230,7 @@ void mcmcRectangularPrismFitting::MarkovChainStepOnOne()
       shape2Fit->setWidth(width+widthInc); 
     computeWeight();
     //if better than best update best
-    if(weight>bestweight)
+    if(weight<bestweight)
     {
       if(selection==0)
         bestFit->setCenter(shape2Fit->getCenter());
@@ -232,7 +244,8 @@ void mcmcRectangularPrismFitting::MarkovChainStepOnOne()
   //ifnot get it with probability nextweight/weight
   else
   {
-    float probability=nextWeight/weight;
+    //float probability=nextWeight/weight;
+    float probability=0.05;
     if ( (((float) rand())/(float) RAND_MAX) < probability)
     {
       if(selection==0)
