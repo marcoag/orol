@@ -4,9 +4,9 @@
     <transform id="cube_0_t">
       <mesh id="cube_0" file="cubexxx.3ds" scale="500" rx="0" render="wireframe"/>
     </transform>
-    <transform id="cube_best_t">
+<!--    <transform id="cube_best_t">
       <mesh id="cube_best" file="cubexxx.3ds" scale="500" rx="0" render="wireframe"/>
-    </transform> 
+    </transform> -->
   </transform>
   <mesh id="rawOdometry_mesh" file="axis.osg" scale="30" rx="1.57" render="wireframe" /> 
 

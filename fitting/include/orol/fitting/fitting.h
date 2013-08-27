@@ -22,8 +22,6 @@ public:
   
   template<typename T> boost::signals2::connection registerCallback (const boost::function<T> & callback);
   
-  virtual void adapt() = 0;
-  
 protected:
   
   std::map<std::string, boost::signals2::signal_base*> signals_;

@@ -5,12 +5,21 @@ set(SUBSYS_DEPS shapes)
 set(srcs
       src/naive_rect_prism_fitting.cpp
       src/mcmc_rect_prism_fitting.cpp
+      src/rect_prism_cloud_particle.cpp
+      src/pf_rect_prism_fitting.cpp
    )
    
 set(incs
       include/orol/${SUBSYS_NAME}/fitting.h
       include/orol/${SUBSYS_NAME}/naive_rect_prism_fitting.h
       include/orol/${SUBSYS_NAME}/mcmc_rect_prism_fitting.h
+      include/orol/${SUBSYS_NAME}/particle_filter/particle_filter.h
+      include/orol/${SUBSYS_NAME}/particle_filter/biased_random_selector.h
+      include/orol/${SUBSYS_NAME}/rect_prism_cloud_particle.h
+      include/orol/${SUBSYS_NAME}/pf_rect_prism_fitting.h
+      
+      
+      
    )
 
 OROL_SUBSYS_DEPEND(build ${SUBSYS_NAME} DEPS ${SUBSYS_DEPS} OPT_DEPS)

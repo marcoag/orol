@@ -30,6 +30,7 @@ class mcmcRectangularPrismFitting: public fitting
   boost::thread captured_thread;
   mutable boost::mutex capture_mutex;
   boost::signals2::signal<sig_cb_fitting_addapt>* fitting_signal;
+  float MAX_WIDTH;
 
   //Random variance variables
   QVec varianceC;

@@ -48,6 +48,8 @@ void mcmcRectangularPrismFitting::initRectangularPrism ()
     if (max_distance<distance)
       max_distance=distance;
   }
+  MAX_WIDTH=max_distance;
+  
   float ratio=max_eigenvalue/max_distance;
   
   //set initial values for the rectangular prism
@@ -119,8 +121,8 @@ float mcmcRectangularPrismFitting::computeWeight()
 
 void mcmcRectangularPrismFitting::adapt()
 {
-  MarkovChainStepOnAll();
-  //MarkovChainStepOnOne();
+  //MarkovChainStepOnAll();
+  MarkovChainStepOnOne();
   
   float annealing = 1;
   varianceC = varianceC.operator*(annealing);
@@ -156,7 +158,7 @@ void mcmcRectangularPrismFitting::MarkovChainStepOnAll()
   computeWeight();
   
   //we get it for sure
-  if(nextWeight<weight)
+  if(nextWeight<weight &&  rotation(0)+rotationInc(0)<=MAX_WIDTH &&  rotation(1)+rotationInc(1)<=MAX_WIDTH &&  rotation(2)+rotationInc(2)<=MAX_WIDTH)
   {
     shape2Fit->setCenter(QVec::vec3(translation(0)+translationInc(0),translation(1)+translationInc(1),translation(2)+translationInc(2)));
     shape2Fit->setRotation(QVec::vec3(rotation(0)+rotationInc(0),rotation(1)+rotationInc(1),rotation(2)+rotationInc(2)));

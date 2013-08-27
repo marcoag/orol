@@ -1,5 +1,5 @@
 #include <orol/shapes/rectprism.h>
-#include <orol/fitting/naive_rect_prism_fitting.h>
+#include <orol/fitting/pf_rect_prism_fitting.h>
 #include <orol/visual/viewer.h>
 #include <iostream>
 
@@ -15,71 +15,69 @@ pcl::PointCloud<PointT>::Ptr sinteticCubeCloud(int Wx, int Wy, int Wz, int res)
   //Faces front and back
   for(float x=0; x<=Wx; x=x+res)
   {
-    for(float y=0; y<=Wx; y=y+res)
+    for(float y=0; y<=Wy; y=y+res)
     {
       //face front (x=0)
-      pcl::PointXYZRGBA p;
-      p.x = x;//+RectPrismCloudParticle::getRandom(10);
-      p.y = y;//+RectPrismCloudParticle::getRandom(10);
-      p.z = 0;//+RectPrismCloudParticle::getRandom(10);
+      PointT p;
+      p.x = x;
+      p.y = y;
+      p.z = 0;
       p.r = 0;
       p.g = 255;
-      p.b = 0;
+      p.b = 0;      
       cloud->push_back(p);
       p.x = x;
       p.y = y;
-      p.z = Wz;  
+      p.z = Wz;
       p.r = 0;
       p.g = 255;
-      p.b = 0;
+      p.b = 0;      
       cloud->push_back(p);
     }
   }
-  
   //Faces up and down
   for(float x=0; x<=Wx; x=x+res)
   {
     for(float z=0; z<=Wz; z=z+res)
     {
       //face front (x=0)
-      pcl::PointXYZRGBA p;
-      p.x = x;//+RectPrismCloudParticle::getRandom(10);
-      p.y = 0;//+RectPrismCloudParticle::getRandom(10);
-      p.z = z;//+RectPrismCloudParticle::getRandom(10);
+      PointT p;
+      p.x = x;
+      p.y = 0;
+      p.z = z;
       p.r = 0;
       p.g = 255;
       p.b = 0;
       cloud->push_back(p);
-      p.x = x;//+RectPrismCloudParticle::getRandom(10);
-      p.y = Wy;//+RectPrismCloudParticle::getRandom(10);;
-      p.z = z;//+RectPrismCloudParticle::getRandom(10);
+      p.x = x;
+      p.y = Wy;
+      p.z = z;      
       p.r = 0;
       p.g = 255;
       p.b = 0;
       cloud->push_back(p);
     }
   }
-  
   //Faces right and left
   for(float y=0; y<=Wy; y=y+res)
   {
     for(float z=0; z<=Wz; z=z+res)
     {
       //face front (x=0)
-      pcl::PointXYZRGBA p;
-      p.x = 0;//+RectPrismCloudParticle::getRandom(10);
-      p.y = y;//+RectPrismCloudParticle::getRandom(10);
-      p.z = z;//+RectPrismCloudParticle::getRandom(10);
+      PointT p;
+      p.x = 0;
+      p.y = y;
+      p.z = z;
       p.r = 0;
       p.g = 255;
-      p.b = 0;
+      p.b = 0;      
       cloud->push_back(p);
-      p.x = Wx;//+RectPrismCloudParticle::getRandom(10);
-      p.y = y;//+RectPrismCloudParticle::getRandom(10);
-      p.z = z;//+RectPrismCloudParticle::getRandom(10);
+      p.x = Wx;
+      p.y = y;
+      p.z = z;
       p.r = 0;
       p.g = 255;
-      p.b = 0;
+      p.b = 0;      
       cloud->push_back(p);
     }
   }
@@ -109,9 +107,6 @@ class fitterViewer
     {
       v->setPose("cube_0_t", shape->getCenter(), shape->getRotation(), shape->getWidth() );
       v->setScale("cube_0", shape->getWidth()(0)/2, shape->getWidth()(1)/2, shape->getWidth()(2)/2);
-      
-      v->setPose("cube_best_t", fitter->getBest()->getCenter(), fitter->getBest()->getRotation(), fitter->getBest()->getWidth() );
-      v->setScale("cube_best", fitter->getBest()->getWidth()(0)/2, fitter->getBest()->getWidth()(1)/2, fitter->getBest()->getWidth()(2)/2);
     }
     
     void run(int argc, char* argv[],pcl::PointCloud<PointT>::Ptr cloud)
@@ -121,24 +116,19 @@ class fitterViewer
        v->setPointCloud(cloud);
       
        boost::shared_ptr<RectPrism> shape(new RectPrism());
-       fitter = new naiveRectangularPrismFitting( cloud );
+       fitter = new PfRectangularPrismFitting( 100, cloud );
 
        boost::function<void (const boost::shared_ptr<RectPrism>&)> f =
          boost::bind (&fitterViewer::fit_cb, this, _1);
 
        fitter->registerCallback (f);
        
-//       shape=fitter->getRectangularPrism();
-       
-//        v->setPose("cube_0_t", shape->getCenter(), shape->getRotation(), shape->getWidth() );
-//        v->setScale("cube_0", shape->getWidth()(0)/2, shape->getWidth()(1)/2, shape->getWidth()(2)/2);
-
        fitter->start ();
        
     }
     
     boost::shared_ptr<Viewer> v; 
-    naiveRectangularPrismFitting* fitter;
+    PfRectangularPrismFitting* fitter;
     
 };
 
@@ -147,7 +137,7 @@ int main (int argc, char* argv[])
 { 
   QApplication app(argc, argv);
   //Create sintetic cube
-  pcl::PointCloud<PointT>::Ptr cloud2fit = sinteticCubeCloud (100,100,400,50);
+  pcl::PointCloud<PointT>::Ptr cloud2fit = sinteticCubeCloud (120,400,200,10);
 
 //   std::string filename="box_00.pcd";
 //   pcl::PointCloud<PointT>::Ptr cloud2fit ( new pcl::PointCloud<PointT>());
