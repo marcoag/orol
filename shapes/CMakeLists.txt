@@ -14,6 +14,7 @@ set(incs
       include/orol/${SUBSYS_NAME}/cylinder.h
       include/orol/${SUBSYS_NAME}/rectprism.h
       include/orol/${SUBSYS_NAME}/vector.h
+      include/orol/${SUBSYS_NAME}/codes.h      
    )
 
 set(LIB_NAME orol_${SUBSYS_NAME})

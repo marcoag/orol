@@ -38,18 +38,20 @@ public:
   QVec getRotation();
   QVec getScale();
   float getRandom(float var);
+  void setRectPrism (RectPrism r );
   void print(std::string v);
   //to set variances
   inline void setVarianceC(QVec c) { varianceC = c; }
   inline void setVarianceW(QVec w) { varianceW = w; }
   inline void setVarianceR(QVec r) { varianceR = r; }
-  
-  inline boost::shared_ptr<RectPrism> get_shape () { return shape; }
 
   void estimateEigenAndCentroid(const RectPrismCloudPFInputData &data, Eigen::Vector3f &eig_values, Eigen::Matrix3f &eig_vectors, Eigen::Vector4f &centroid);
 
+  
+  inline RectPrism getRectPrism() { return r; };
+
 private:
-  boost::shared_ptr<RectPrism> shape;
+  RectPrism r;
   
   //Random variance variables
   QVec varianceC;

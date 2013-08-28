@@ -1,24 +1,57 @@
 #include <orol/fitting/pf_rect_prism_fitting.h>
 
+float PfRectPrismFitting::getRandom(float var)
+{
+  double U = double(rand())/RAND_MAX;
+  double V = double(rand())/RAND_MAX;
+  return sqrt(-2*log(U))*cos(2.*M_PIl*V)*var;
+}
+
 /**
   * \brief Default constructor
   */
-PfRectangularPrismFitting::PfRectangularPrismFitting (int num_particles, pcl::PointCloud<PointT>::Ptr cloud)
-{ 
-  c.particles=num_particles;
+PfRectPrismFitting::PfRectPrismFitting(): cloud_cup (new pcl::PointCloud<PointT>)
+{
   
-  pointCloud2Fit=cloud; 
+  c.particles=30 ;
   
-  captured_thread = boost::thread (&PfRectangularPrismFitting::captureThreadFunction, this);
+  captured_thread = boost::thread (&PfRectPrismFitting::captureThreadFunction, this);
   fitting_signal = createSignal<sig_cb_fitting_addapt> ();
   
-  input.cloud_target=cloud;
+  input.cloud_target=cloud_cup; 
   
   pf = new RCParticleFilter<RectPrismCloudPFInputData, int, RectPrismCloudParticle, RCParticleFilter_Config> (&c, input, 0);
 }
 
-void PfRectangularPrismFitting::captureThreadFunction ()
+/**
+  * \brief Default constructor
+  */
+PfRectPrismFitting::PfRectPrismFitting( int numparticles,  pcl::PointCloud<PointT>::Ptr cloudToFit)
 {
+  
+  c.particles=numparticles;
+  
+  captured_thread = boost::thread (&PfRectPrismFitting::captureThreadFunction, this);
+  fitting_signal = createSignal<sig_cb_fitting_addapt> ();
+  
+  cloud_cup = cloudToFit;
+  
+  input.cloud_target=cloud_cup;
+  pf = new RCParticleFilter<RectPrismCloudPFInputData, int, RectPrismCloudParticle, RCParticleFilter_Config> (&c, input, 0);
+  
+}
+
+/**
+  * \brief Default destructor
+  */
+PfRectPrismFitting::~PfRectPrismFitting()
+{
+
+}
+
+void PfRectPrismFitting::captureThreadFunction()
+{ 
+  
   while (true)
   {
 
@@ -28,22 +61,15 @@ void PfRectangularPrismFitting::captureThreadFunction ()
     {
 
       pf->step(input, 0, false, -1);
-      best_particle=pf->getBest();
       
-      cout<<"PESO:"<<best_particle.getWeight()<<endl;
+      bestParticle=pf->getBest();
       
       // Check for shape slots
       if (num_slots<sig_cb_fitting_addapt> () > 0 )
-        fitting_signal->operator() (get_best_shape ());
-      
+        fitting_signal->operator() (getBestFit ());
     }
     capture_lock.unlock ();
   }
 }
 
-float PfRectangularPrismFitting::getRandom(float var)
-{
-  double U = double(rand())/RAND_MAX;
-  double V = double(rand())/RAND_MAX;
-  return sqrt(-2*log(U))*cos(2.*M_PIl*V)*var;
-}
+

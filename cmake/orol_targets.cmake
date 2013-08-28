@@ -13,6 +13,8 @@ macro(OROL_ADD_LIBRARY _name _component)
     if(USE_PROJECT_FOLDERS)
       set_target_properties(${_name} PROPERTIES FOLDER "Libraries")
     endif(USE_PROJECT_FOLDERS)
+    
+    message(destination: ${LIB_INSTALL_DIR} )
 
     install(TARGETS ${_name}
         RUNTIME DESTINATION ${BIN_INSTALL_DIR} COMPONENT orol_${_component}
