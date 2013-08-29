@@ -6,7 +6,7 @@
 
 #include <orol/fitting/particle_filter/biased_random_selector.h>
 
-#include <omp.h>
+//#include <omp.h>
 
 /**
 ========================================
@@ -201,8 +201,8 @@ protected:
     }
     else
     {
-      omp_set_num_threads(maxThreads<0?omp_get_max_threads():maxThreads);
-      #pragma omp parallel for
+    //  omp_set_num_threads(maxThreads<0?omp_get_max_threads():maxThreads);
+    //  #pragma omp parallel for
       for (uint i=0; i<config->particles; ++i)
       {
         p[i].computeWeight(data);

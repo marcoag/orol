@@ -59,7 +59,6 @@ void PfRectPrismFitting::captureThreadFunction()
     boost::unique_lock<boost::mutex> capture_lock (capture_mutex);
     if(running)
     {
-
       pf->step(input, 0, false, -1);
       
       bestParticle=pf->getBest();
