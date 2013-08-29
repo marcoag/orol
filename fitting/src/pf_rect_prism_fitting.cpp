@@ -10,7 +10,7 @@ float PfRectPrismFitting::getRandom(float var)
 /**
   * \brief Default constructor
   */
-PfRectPrismFitting::PfRectPrismFitting(): cloud_cup (new pcl::PointCloud<PointT>)
+PfRectPrismFitting::PfRectPrismFitting(): cloud2Fit (new pcl::PointCloud<PointT>)
 {
   
   c.particles=30 ;
@@ -18,7 +18,7 @@ PfRectPrismFitting::PfRectPrismFitting(): cloud_cup (new pcl::PointCloud<PointT>
   captured_thread = boost::thread (&PfRectPrismFitting::captureThreadFunction, this);
   fitting_signal = createSignal<sig_cb_fitting_addapt> ();
   
-  input.cloud_target=cloud_cup; 
+  input.cloud_target=cloud2Fit; 
   
   pf = new RCParticleFilter<RectPrismCloudPFInputData, int, RectPrismCloudParticle, RCParticleFilter_Config> (&c, input, 0);
 }
@@ -34,9 +34,9 @@ PfRectPrismFitting::PfRectPrismFitting( int numparticles,  pcl::PointCloud<Point
   captured_thread = boost::thread (&PfRectPrismFitting::captureThreadFunction, this);
   fitting_signal = createSignal<sig_cb_fitting_addapt> ();
   
-  cloud_cup = cloudToFit;
+  cloud2Fit = cloudToFit;
   
-  input.cloud_target=cloud_cup;
+  input.cloud_target=cloud2Fit;
   pf = new RCParticleFilter<RectPrismCloudPFInputData, int, RectPrismCloudParticle, RCParticleFilter_Config> (&c, input, 0);
   
 }

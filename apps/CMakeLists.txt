@@ -23,3 +23,5 @@ target_link_libraries(orol_live_mcmc_rectangular_prism_fitting orol_shapes orol_
 OROL_ADD_EXECUTABLE(orol_pf_rectangular_prism_fitting ${SUBSYS_NAME} src/pf_rectangular_prism_fitting.cpp)
 target_link_libraries(orol_pf_rectangular_prism_fitting orol_shapes orol_fitting orol_visual)
 
+OROL_ADD_EXECUTABLE(orol_live_pf_rectangular_prism_fitting ${SUBSYS_NAME} src/live_pf_rectangular_prism_fitting.cpp)
+target_link_libraries(orol_live_pf_rectangular_prism_fitting orol_shapes orol_fitting orol_visual)

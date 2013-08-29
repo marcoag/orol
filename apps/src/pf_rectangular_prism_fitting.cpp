@@ -105,7 +105,7 @@ public:
     //fix this linking error with rectprism if not here:
     boost::shared_ptr<RectPrism> shape(new RectPrism());
     
-    fitter = new PfRectPrismFitting( 30,  cloudToFit );
+    fitter = new PfRectPrismFitting( 30, cloudToFit );
       
     boost::function<void (RectPrism)> f =
       boost::bind (&fitterViewer::fit_cb, this, _1);

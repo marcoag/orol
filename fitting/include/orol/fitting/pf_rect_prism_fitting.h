@@ -21,6 +21,7 @@ public:
   ~PfRectPrismFitting();
   void sig_term();
   void captureThreadFunction();
+  void setPointCloud(  pcl::PointCloud<PointT>::Ptr cloud) { cloud2Fit=cloud; }
   float getRandom(float var);
   inline double getRandom() { return (rand()%32000)/32000.0; }
   inline RectPrism getBestFit() { return bestParticle.getRectPrism(); }
@@ -28,7 +29,7 @@ public:
 private:
   
   RectPrismCloudPFInputData input;
-  pcl::PointCloud<PointT>::Ptr cloud_cup;
+  pcl::PointCloud<PointT>::Ptr cloud2Fit;
   RCParticleFilter<RectPrismCloudPFInputData, int, RectPrismCloudParticle, RCParticleFilter_Config> *pf;
   
   RCParticleFilter_Config c;
