@@ -131,7 +131,8 @@ int main(int argc, char* argv[])
    QApplication app(argc, argv);
    
    fitterViewer f;
-   f.run(sinteticCubeCloud(120,400,200,10));
+   //f.run(sinteticCubeCloud(120,400,200,10));
+   f.run(sinteticCubeCloud(100,100,400,50));
    
    app.exec();
   

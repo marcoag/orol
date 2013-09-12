@@ -85,4 +85,4 @@ fitting::registerCallback (const boost::function<T> & callback)
   return (ret);
 }
 
-#endif OROL_FITTING
+#endif

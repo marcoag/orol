@@ -5,6 +5,7 @@
 
 #include <pcl/io/openni_grabber.h>
 
+#include <orol/visual/rcdraw.h>
 #include <orol/visual/osgviewer/osgview.h>
 #include <orol/visual/innermodel/innermodel.h>
 #include <orol/visual/innermodel/innermodelviewer.h>
@@ -27,6 +28,12 @@ Q_OBJECT
   InnerModelManager *innermodelmanager;
   QMutex innermodelMutex;
   
+  QFrame *frameRGB;
+  
+  QImage *qImgRGB;
+  RCDraw *drawRGB ;
+  osg::ref_ptr<osg::Image> osgImage;
+  
 public:
   Viewer(string innermodelMap);
   ~Viewer();
@@ -36,6 +43,8 @@ public:
   
   void setPose(std::string item,  QVec t,  QVec r,  QVec s);
   void setScale(std::string item, float scaleX,float scaleY, float scaleZ);
+  
+  void showImage( uint width, uint height, unsigned char *rgb_image);
 
 public slots:
   void update();

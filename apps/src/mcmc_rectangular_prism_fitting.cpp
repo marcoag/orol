@@ -114,12 +114,12 @@ class fitterViewer
       v->setScale("cube_best", fitter->getBest()->getWidth()(0)/2, fitter->getBest()->getWidth()(1)/2, fitter->getBest()->getWidth()(2)/2);
     }
     
-    void run(int argc, char* argv[], pcl::PointCloud<PointT>::Ptr cloud)
+    void run( pcl::PointCloud<PointT>::Ptr cloud )
     {
        v->setPointCloud(cloud);
       
        boost::shared_ptr<RectPrism> shape(new RectPrism());
-       fitter = new mcmcRectangularPrismFitting( cloud, QVec::vec3(1,1,1),QVec::vec3(5,5,5),QVec::vec3(0.5,0.5,0.5));
+       fitter = new mcmcRectangularPrismFitting( cloud, QVec::vec3(1,1,1),QVec::vec3(3,3,3),QVec::vec3(0.5,0.5,0.5));
 
        boost::function<void (const boost::shared_ptr<RectPrism>&)> f =
          boost::bind (&fitterViewer::fit_cb, this, _1);
@@ -142,16 +142,12 @@ int main (int argc, char* argv[])
   QApplication app(argc, argv);
   
   //Create sintetic cube
-  pcl::PointCloud<PointT>::Ptr cloud2fit = sinteticCubeCloud (100,100,400,50);
-  //moveACloud(cloud2fit, 50, 20, 10);
-//   std::string filename="box_00.pcd";
-//   pcl::PointCloud<PointT>::Ptr cloud2fit ( new pcl::PointCloud<PointT>());
-//   pcl::io::loadPCDFile<PointT> ( filename, *cloud2fit);
+  pcl::PointCloud<PointT>::Ptr cloud2fit = sinteticCubeCloud (100,100,400,30);
 //   
   //create fitter
   fitterViewer f;
   
-  f.run(argc, argv, cloud2fit);
+  f.run(cloud2fit);
   
   app.exec();
   

@@ -124,7 +124,7 @@ void mcmcRectangularPrismFitting::adapt()
   //MarkovChainStepOnAll();
   MarkovChainStepOnOne();
   
-  float annealing = 1;
+  float annealing = 0.9999;
   varianceC = varianceC.operator*(annealing);
   varianceS = varianceS.operator*(annealing);
   varianceR = varianceR.operator*(annealing);
@@ -192,9 +192,13 @@ void mcmcRectangularPrismFitting::MarkovChainStepOnOne()
 {
   //incs on each stuff
   int selection = rand()%3;
+  cout<<getRandom(varianceS(0))<<endl;
   QVec translationInc = QVec::vec3(getRandom(varianceC(0)),getRandom(varianceC(1)),getRandom(varianceC(2)));
   QVec rotationInc    = QVec::vec3(getRandom(varianceR(0)),getRandom(varianceR(1)),getRandom(varianceR(2)));
   QVec widthInc       = QVec::vec3(getRandom(varianceS(0)),getRandom(varianceS(1)),getRandom(varianceS(2)));
+  //if out of bounds try again
+  while (widthInc(0)>MAX_WIDTH || widthInc(0)<-MAX_WIDTH || widthInc(1)>MAX_WIDTH || widthInc(1)<-MAX_WIDTH || widthInc(2)>MAX_WIDTH || widthInc(2)<-MAX_WIDTH )
+      QVec widthInc       = QVec::vec3(getRandom(varianceS(0)),getRandom(varianceS(1)),getRandom(varianceS(2)));
   
   float currentWeight=weight;
   float nextWeight;
@@ -266,5 +270,8 @@ float mcmcRectangularPrismFitting::getRandom(float var)
 {
   double U = double(rand())/RAND_MAX;
   double V = double(rand())/RAND_MAX;
-  return sqrt(-2*log(U))*cos(2.*M_PIl*V)*var;
+//   if((rand()/RAND_MAX) >= 0.5)
+    return sqrt(-2*log(U))*cos(2.*M_PIl*V)*var;
+//   else
+//     return -sqrt(-2*log(U))*cos(2.*M_PIl*V)*var;
 }

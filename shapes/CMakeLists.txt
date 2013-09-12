@@ -17,6 +17,9 @@ set(incs
       include/orol/${SUBSYS_NAME}/codes.h      
    )
 
+INCLUDE( ${QT_USE_FILE} )
+ADD_DEFINITIONS(${QT_DEFINITIONS})
+   
 set(LIB_NAME orol_${SUBSYS_NAME})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 

@@ -14,6 +14,7 @@
 #include <pcl/sample_consensus/sac_model_plane.h>
 #include <pcl/sample_consensus/ransac.h>
 #include <pcl/segmentation/extract_clusters.h>
+#include <pcl/io/openni_camera/openni_image.h>
 
 typedef pcl::PointXYZRGBA PointT;
 
@@ -177,9 +178,13 @@ void translateClouds(pcl::PointCloud<PointT>::Ptr c_dest,
 class fitterViewer
 {
   public:
-    fitterViewer():v(new Viewer("cubeCloud.xml"))
-    ,cloud_buff(new pcl::PointCloud<PointT>)
-    ,new_cloud_available_flag(false)
+    fitterViewer()
+    : v(new Viewer("cubeCloud.xml"))
+    , cloud_buff(new pcl::PointCloud<PointT>)
+    , cloud_to_show(new pcl::PointCloud<PointT>)
+    , new_cloud_available_flag(false)
+    , rgb_buffer(0)
+    , first_image(true)
     {}
     
     ~fitterViewer()
@@ -201,13 +206,44 @@ class fitterViewer
       
     }
     
+    void image_cb (const boost::shared_ptr<openni_wrapper::Image> &image)
+    {
+      
+      if (first_image)
+      {
+        rgb_buffer = new unsigned char [image->getWidth () * image->getHeight () * 3];
+        first_image=false;
+      }
+      
+      image->fillRGB(image->getWidth(), image->getHeight(), rgb_buffer);
+      
+      v->showImage(image->getWidth(), image->getHeight(), rgb_buffer);
+      
+    }
+    
     void cloud_cb (const pcl::PointCloud<PointT>::ConstPtr &cloud)
     {
       cloud_mutex.lock();
       if (new_cloud_available_flag==false)
       {
+        
+
+        
+/*        cloud_to_show->clear();
+        for(pcl::PointCloud<PointT>::const_iterator it = cloud->begin(); it != cloud->end(); it++)
+        {
+          PointT p;
+          p.x=-it->x*1000;
+          p.y=-it->y*1000;
+          p.z=it->z*1000;
+          p.r=it->r;
+          p.g=it->g;
+          p.b=it->b;
+          cloud_to_show->push_back(p);
+        }
+        
+        v->setPointCloud(cloud_to_show);     */
         translateClouds(cloud_buff, cloud);
-        v->setPointCloud(cloud_buff);
         new_cloud_available_flag=true;
       }
       cloud_mutex.unlock();
@@ -224,8 +260,15 @@ class fitterViewer
          boost::bind (&fitterViewer::cloud_cb, this, _1);
          
       interface->registerCallback(f_kinect);
-
+      
+      //Image callback:
+      boost::function<void (const boost::shared_ptr<openni_wrapper::Image>&)> f_image =
+         boost::bind (&fitterViewer::image_cb, this, _1);
+      
+      interface->registerCallback(f_image);
+      
       interface->start ();
+      
       
       // Wait for the first frame:
       while(!new_cloud_available_flag) 
@@ -247,11 +290,17 @@ class fitterViewer
     boost::shared_ptr<Viewer> v;
     QMutex cloud_mutex;
     pcl::PointCloud<PointT>::Ptr cloud_buff;
+    pcl::PointCloud<PointT>::Ptr cloud_to_show;
+    boost::shared_ptr<openni_wrapper::Image> image;
     
     PfRectPrismFitting* fitter;
     pcl::Grabber* interface;
     
+    
     bool new_cloud_available_flag;
+    
+    unsigned char *rgb_buffer;
+    bool first_image;
 };
 
   
