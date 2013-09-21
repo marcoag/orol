@@ -46,15 +46,18 @@ Viewer::~Viewer()
   delete(innermodelviewer);
 }
 
-void Viewer::showImage( uint width, uint height, unsigned char *rgb_image)
+void Viewer::showImage( uint32_t width, uint32_t height, uint8_t *rgb_image)
 {
-  memcpy(qImgRGB->bits(),rgb_image,640*480*3);
-  osgImage.get()->setImage(640,480,1,GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, rgb_image, osg::Image::NO_DELETE, 1);
-  world3D->setImageHUD(osgImage);
-  world3D->update();
-    
-  qImgRGB->loadFromData( rgb_image, 640*480*3 );
-  drawRGB->update();
+//   memcpy(qImgRGB->bits(),rgb_image,640*480*3);
+//   osgImage.get()->setImage(640,480,1,GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, rgb_image, osg::Image::NO_DELETE, 1);
+//   world3D->setImageHUD(osgImage);
+//   world3D->update();
+//     
+//   qImgRGB->loadFromData( rgb_image, 640*480*3 );
+//   drawRGB->update();
+
+  innermodelviewer->planesHash["nombredelplano"]->updateBuffer(rgb_image, width, height);
+
 
 }
 

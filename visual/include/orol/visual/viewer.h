@@ -44,7 +44,7 @@ public:
   void setPose(std::string item,  QVec t,  QVec r,  QVec s);
   void setScale(std::string item, float scaleX,float scaleY, float scaleZ);
   
-  void showImage( uint width, uint height, unsigned char *rgb_image);
+  void showImage( uint32_t width, uint32_t height, uint8_t *rgb_image);
 
 public slots:
   void update();
