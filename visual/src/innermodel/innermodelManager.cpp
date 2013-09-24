@@ -36,6 +36,20 @@ void InnerModelManager::setPointCloudData(const std::string id, pcl::PointCloud<
   
 }
 
+void InnerModelManager::setImageOnPlane(int32_t width, int32_t height, uint8_t  *rgb_image, const std::string id)
+{
+  QString m = QString("setImageOnPlane");
+  std::cout<<"InnerModelManager::setImageOnPlane: "<<std::endl;
+  
+  /// Aqui Marco va a mejorar el código :-) felicidad (comprobar que la nube existe)
+  IMVPlane *pcNode = imv->planesHash[QString::fromStdString(id)];
+  
+  pcNode->updateBuffer(rgb_image, width, height);
+
+  pcNode->performUpdate();
+  imv->update();
+}
+
 void InnerModelManager::setPose(std::string item,  QVec t,  QVec r,  QVec s)
 {
   QString qItem = QString::fromStdString(item);

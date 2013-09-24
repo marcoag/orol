@@ -59,8 +59,13 @@ void Viewer::showImage( int32_t width, int32_t height, uint8_t  *rgb_image)
 //   drawRGB->update();
 //   
 //   cout<<"Showed image"<<endl;
-
-  innermodelviewer->planesHash["back"]->updateBuffer(rgb_image, width, height);
+  innermodelMutex.lock();
+  innermodelmanager->setImageOnPlane(width, height, rgb_image, "back" );
+  innermodelMutex.unlock();
+//   cout<<(uint8_t)*rgb_image<<endl;
+// 
+//   innermodelviewer->planesHash["back"]->updateBuffer(rgb_image, width, height);
+  
 }
 
 void Viewer::setPointCloud(pcl::PointCloud<PointT>::Ptr cloud)
