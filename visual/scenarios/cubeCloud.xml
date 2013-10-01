@@ -6,10 +6,10 @@
       <plane id="back" nx="0" ny="0" nz="1" px="0"  py="0"  pz="0"  size="50000" repeat="1" texture="#546f13" />
     </transform>-->
     <transform id="cube_0_t">
-      <mesh id="cube_0" file="cubexxx.3ds" scale="500" rx="0" render="wireframe"/>
+      <mesh id="cube_0" file="cubexxx.3ds" scale="500"  render="wireframe"/>
     </transform>
     <transform id="cube_best_t">
-      <mesh id="cube_best" file="cubexxx.3ds" scale="500" rx="0" render="wireframe"/>
+      <mesh id="cube_best" file="cubexxx.3ds" scale="500" render="wireframe"/>
     </transform> 
     
   </transform>
