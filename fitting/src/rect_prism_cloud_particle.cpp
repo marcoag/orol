@@ -9,7 +9,7 @@ RectPrismCloudParticle::RectPrismCloudParticle(): r()
 //   varianceR=0;
   varianceC=QVec::vec3(10, 10, 10);
   varianceW=QVec::vec3(10, 10, 10);
-  varianceR=QVec::vec3(0.1, 0.1, 0.1);
+  varianceR=QVec::vec3(0.15, 0.15, 0.15);
 }
 
 void RectPrismCloudParticle::estimateEigenAndCentroid(const RectPrismCloudPFInputData &data, Eigen::Vector3f &eig_values, Eigen::Matrix3f &eig_vectors, Eigen::Vector4f &centroid)
@@ -101,7 +101,8 @@ void RectPrismCloudParticle::initializeFromEigenValues(const RectPrismCloudPFInp
   float rx = atan2(eigen_vectors(2,1), eigen_vectors(2,2));
   float ry = atan2(-eigen_vectors(2,0),sqrt(pow(eigen_vectors(2,1),2)+pow(eigen_vectors(2,2),2)));
   float rz = atan2(eigen_vectors(1,0),eigen_vectors(0,0));
-  r.setRotation(QVec::vec3(rx,ry,rz));
+  //r.setRotation(QVec::vec3(rx,ry,rz));
+  //r.setRotation(QVec::vec3(1.56,0,0));
 
 }
 

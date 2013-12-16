@@ -17,7 +17,7 @@ void InnerModelManager::setPointCloudData(const std::string id, pcl::PointCloud<
   int points = cloud->size();
   pcNode->points->resize(points);
   pcNode->colors->resize(points);
-  pcNode->setPointSize(1);
+  pcNode->setPointSize(3);
   int i = 0;
   for(pcl::PointCloud<pcl::PointXYZRGBA>::iterator it = cloud->begin(); it != cloud->end(); it++ )
   {
@@ -36,6 +36,20 @@ void InnerModelManager::setPointCloudData(const std::string id, pcl::PointCloud<
   
 }
 
+void InnerModelManager::setImageOnPlane(int32_t width, int32_t height, uint8_t  *rgb_image, const std::string id)
+{
+  QString m = QString("setImageOnPlane");
+  std::cout<<"InnerModelManager::setImageOnPlane: "<<std::endl;
+  
+  /// Aqui Marco va a mejorar el código :-) felicidad (comprobar que la nube existe)
+  IMVPlane *pcNode = imv->planesHash[QString::fromStdString(id)];
+  
+  pcNode->updateBuffer(rgb_image, width, height);
+
+  pcNode->performUpdate();
+  imv->update();
+}
+
 void InnerModelManager::setPose(std::string item,  QVec t,  QVec r,  QVec s)
 {
   QString qItem = QString::fromStdString(item);
@@ -44,7 +58,7 @@ void InnerModelManager::setPose(std::string item,  QVec t,  QVec r,  QVec s)
   InnerModelTransform *aux = dynamic_cast<InnerModelTransform*>(getNode(QString::fromStdString(item),m));
   checkOperationInvalidNode(aux,m + qItem +"can't be use as base because it's not a InnerModelTransform node.");
   
-  innerModel->updateTransformValues(qItem, t(0), t(1), t(2), r(0) , r(1) , r(2));
+  innerModel->updateTransformValues(qItem, t(0), t(1), t(2), r(0), r(1), r(2));
   imv->update();  
 
 //   if (collisiondetection->isChecked())

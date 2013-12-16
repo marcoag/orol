@@ -273,7 +273,7 @@ int main (int argc, char* argv[])
   QApplication app(argc, argv);
   
   //Create sintetic cube
-  pcl::PointCloud<PointT>::Ptr cloud2fit = sinteticCubeCloud (100,100,400,50);
+  pcl::PointCloud<PointT>::Ptr cloud2fit = sinteticCubeCloud (100,100,400,10);
   //create fitter
   fitterViewer f;
   

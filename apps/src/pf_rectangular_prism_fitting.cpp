@@ -84,6 +84,19 @@ pcl::PointCloud<PointT>::Ptr sinteticCubeCloud(int Wx, int  Wy, int Wz, int res)
   return cloud_cup;
 }
 
+//moves the cloud to X, Y, Z and rotate
+pcl::PointCloud<PointT>::Ptr moveACloud(pcl::PointCloud<PointT>::Ptr cloud2move, float X, float Y, float Z)
+{
+  Eigen::Matrix4f TransMat; 
+  TransMat <<       1,    0,   0,  X, 
+                    0,    -0.4161,   -0.9093,  Y, 
+                    0,    0.9093,   -0.4161,  Z, 
+                    0,    0,   0,  1; 
+                    
+  pcl::transformPointCloud(*cloud2move,*cloud2move,TransMat );
+  return cloud2move;
+}
+
 class fitterViewer
 {
 public:
@@ -132,7 +145,17 @@ int main(int argc, char* argv[])
    
    fitterViewer f;
    //f.run(sinteticCubeCloud(120,400,200,10));
-   f.run(sinteticCubeCloud(100,100,400,50));
+//    pcl::PointCloud<PointT>::Ptr cloud = sinteticCubeCloud(100,100,400,5);
+   
+     pcl::PointCloud<PointT>::Ptr cloud(new  pcl::PointCloud<PointT>);
+  
+     pcl::io::loadPCDFile<pcl::PointXYZRGBA> ("test_pcd.pcd", *cloud);
+   
+//    Eigen::Vector3f k_vector(1, 1, 1);
+//    Eigen::Affine3f rotate = (Eigen::Affine3f) Eigen::AngleAxisf(3.14 / 2.0, k_vector);
+//    pcl::transformPointCloud(*cloud, *cloud, (Eigen::Affine3f) rotate);
+//     
+   f.run(cloud);
    
    app.exec();
   
