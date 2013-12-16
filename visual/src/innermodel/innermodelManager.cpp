@@ -58,7 +58,7 @@ void InnerModelManager::setPose(std::string item,  QVec t,  QVec r,  QVec s)
   InnerModelTransform *aux = dynamic_cast<InnerModelTransform*>(getNode(QString::fromStdString(item),m));
   checkOperationInvalidNode(aux,m + qItem +"can't be use as base because it's not a InnerModelTransform node.");
   
-  innerModel->updateTransformValues(qItem, t(0), t(1), t(2), r(0), r(1), r(2));
+  innerModel->updateTransformValues(qItem, t(0), t(1), t(2), r(0) , r(1) , r(2));
   imv->update();  
 
 //   if (collisiondetection->isChecked())

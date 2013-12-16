@@ -10,10 +10,10 @@
     </transform>-->
 >>>>>>> 2e2e466b9c56587644e8d1004820c6887007e1e3
     <transform id="cube_0_t">
-      <mesh id="cube_0" file="cubexxx.3ds" scale="500"  render="wireframe"/>
+      <mesh id="cube_0" file="cubexxx.3ds" scale="500" rx="0" render="wireframe"/>
     </transform>
     <transform id="cube_best_t">
-      <mesh id="cube_best" file="cubexxx.3ds" scale="500" render="wireframe"/>
+      <mesh id="cube_best" file="cubexxx.3ds" scale="500" rx="0" render="wireframe"/>
     </transform> 
     
   </transform>

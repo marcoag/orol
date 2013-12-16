@@ -145,16 +145,12 @@ int main(int argc, char* argv[])
    
    fitterViewer f;
    //f.run(sinteticCubeCloud(120,400,200,10));
-//    pcl::PointCloud<PointT>::Ptr cloud = sinteticCubeCloud(100,100,400,5);
+   pcl::PointCloud<PointT>::Ptr cloud = sinteticCubeCloud(100,100,400,5);
    
-     pcl::PointCloud<PointT>::Ptr cloud(new  pcl::PointCloud<PointT>);
-  
-     pcl::io::loadPCDFile<pcl::PointXYZRGBA> ("test_pcd.pcd", *cloud);
-   
-//    Eigen::Vector3f k_vector(1, 1, 1);
-//    Eigen::Affine3f rotate = (Eigen::Affine3f) Eigen::AngleAxisf(3.14 / 2.0, k_vector);
-//    pcl::transformPointCloud(*cloud, *cloud, (Eigen::Affine3f) rotate);
-//     
+   Eigen::Vector3f k_vector(1, 1, 1);
+   Eigen::Affine3f rotate = (Eigen::Affine3f) Eigen::AngleAxisf(3.14 / 2.0, k_vector);
+   pcl::transformPointCloud(*cloud, *cloud, (Eigen::Affine3f) rotate);
+    
    f.run(cloud);
    
    app.exec();
