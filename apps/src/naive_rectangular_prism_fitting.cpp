@@ -149,6 +149,14 @@ int main (int argc, char* argv[])
   //Create sintetic cube
   pcl::PointCloud<PointT>::Ptr cloud2fit = sinteticCubeCloud (100,100,400,50);
 
+   Eigen::Vector3f k_vector(1, 0, 1);
+   Eigen::Affine3f rotate = (Eigen::Affine3f) Eigen::AngleAxisf(3.14 / 2.0, k_vector);
+   pcl::transformPointCloud(*cloud2fit, *cloud2fit, (Eigen::Affine3f) rotate);
+  
+//   pcl::PointCloud<PointT>::Ptr cloud2fit(new  pcl::PointCloud<PointT>);
+//   
+//   pcl::io::loadPCDFile<pcl::PointXYZRGBA> ("test_pcd.pcd", *cloud2fit);
+  
 //   std::string filename="box_00.pcd";
 //   pcl::PointCloud<PointT>::Ptr cloud2fit ( new pcl::PointCloud<PointT>());
 //   pcl::io::loadPCDFile<PointT> ( filename, *cloud2fit);
