@@ -217,7 +217,7 @@ class fitterViewer
       
       image->fillRGB(image->getWidth(), image->getHeight(), rgb_buffer);
       
-      //v->showImage(image->getWidth(), image->getHeight(), rgb_buffer);
+      v->showImage(image->getWidth(), image->getHeight(), rgb_buffer);
       
     }
     

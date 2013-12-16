@@ -1,21 +1,13 @@
 <innerModel>
   <pointcloud id="cloud" /> 
   <transform id="world" >
-<<<<<<< HEAD
     <plane id="image" size="40" repeat="1" texture="#ea2800" />
-=======
-    
-<!--    <transform id="back_t" tx="0" ty="0" tz="0">
-      <plane id="back" nx="0" ny="0" nz="1" px="0"  py="0"  pz="0"  size="50000" repeat="1" texture="#546f13" />
-    </transform>-->
->>>>>>> 2e2e466b9c56587644e8d1004820c6887007e1e3
     <transform id="cube_0_t">
-      <mesh id="cube_0" file="cubexxx.3ds" scale="500"  render="wireframe"/>
+      <mesh id="cube_0" file="cubexxx.3ds" scale="500" rx="0" render="wireframe"/>
     </transform>
     <transform id="cube_best_t">
-      <mesh id="cube_best" file="cubexxx.3ds" scale="500" render="wireframe"/>
+      <mesh id="cube_best" file="cubexxx.3ds" scale="500" rx="0" render="wireframe"/>
     </transform> 
-    
   </transform>
   <mesh id="rawOdometry_mesh" file="axis.osg" scale="30" rx="1.57" render="wireframe" /> 
 
