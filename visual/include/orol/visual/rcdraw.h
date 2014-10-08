@@ -4,7 +4,7 @@
 #include <QtGui>
 #include <stdint.h>
 
-#include <QMat/QMatAll>
+#include <qmat/QMatAll>
 #include <QGLWidget>
 
 

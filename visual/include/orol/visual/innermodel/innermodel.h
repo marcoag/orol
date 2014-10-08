@@ -28,11 +28,11 @@
 #include <QHash>
 
 
-#include <QMat/qmat.h>
-#include <QMat/qvec.h>
-#include <QMat/qcamera.h>
-#include <QMat/qrtmat.h>
-#include <QMat/qfundamental.h>
+#include <qmat/qmat.h>
+#include <qmat/qvec.h>
+#include <qmat/qcamera.h>
+#include <qmat/qrtmat.h>
+#include <qmat/qfundamental.h>
 
 class InnerModel;
 #include <orol/visual/innermodel/innermodelreader.h>

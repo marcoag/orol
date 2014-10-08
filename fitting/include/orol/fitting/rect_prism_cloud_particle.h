@@ -13,7 +13,7 @@
 #include <orol/fitting/particle_filter/particle_filter.h>
 #include <orol/shapes/rectprism.h>
 
-#include <QMat/QMatAll>
+#include <qmat/QMatAll>
 
 typedef pcl::PointXYZRGBA PointT;
 

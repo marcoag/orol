@@ -32,7 +32,7 @@
 #include <orol/visual/osgviewer/getworldcoorofnode.h>
 #include <orol/visual/innermodel/innermodel.h>
 
-#include <QMat/QMatAll>
+#include <qmat/QMatAll>
 #include <QHash>
 
 class InnerModelViewer;
@@ -134,7 +134,6 @@ public:
 		cloudGeometry->setVertexArray(cloudVertices);
 		cloudGeometry->addPrimitiveSet(arrays);
 		cloudGeometry->setColorArray(colorsArray);
-		cloudGeometry->setColorIndices(colorIndexArray);
 		cloudGeometry->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
 		/// Geode
 
@@ -163,7 +162,6 @@ public:
 		cloudGeometry->addPrimitiveSet(arrays);
 		cloudGeometry->getOrCreateStateSet()->setAttribute( new osg::Point(pointSize), osg::StateAttribute::ON );
 		cloudGeometry->setColorArray(colorsArray);
-		cloudGeometry->setColorIndices(colorIndexArray);
 		cloudGeometry->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
 		/// Geode 2
 		addDrawable(cloudGeometry);

@@ -51,5 +51,5 @@ OROL_ADD_INCLUDES(${SUBSYS_NAME} ${SUBSYS_NAME} ${incs})
 OROL_ADD_INCLUDES(${SUBSYS_NAME} ${SUBSYS_NAME}/innermodel ${innermodel_incs})
 OROL_ADD_INCLUDES(${SUBSYS_NAME} ${SUBSYS_NAME}/osgviewer ${osgviewer_incs})
 
-target_link_libraries( ${LIB_NAME} ${QT_LIBRARIES} ${PCL_USER_LIBRARIES} -lrobocomp_innermodel -lqmat -losgGA -losgText -losgDB -losgUtil -losg -losgViewer -lgsl -lblas -lm -lgslcblas )
+target_link_libraries( ${LIB_NAME} ${QT_LIBRARIES} ${PCL_USER_LIBRARIES} -lrobocomp_innermodel -lrobocomp_qmat -losgGA -losgText -losgDB -losgUtil -losg -losgViewer -lgsl -lblas -lm -lgslcblas -lOpenThreads )
 

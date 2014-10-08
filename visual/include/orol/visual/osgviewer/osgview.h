@@ -56,7 +56,7 @@
 #include <osgUtil/IntersectVisitor>
 #include <osg/io_utils>
 
-#include <QMat/QMatAll>
+#include <qmat/QMatAll>
 
 using Qt::WindowFlags;
 using namespace RMat;
